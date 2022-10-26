@@ -1,0 +1,57 @@
+// Sebastian Pfander
+// CS 1
+// Homework #4
+// Lab 4 for F to C convetor and perfect numbers
+
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+int main()
+
+{
+	float start_temp, end_temp, temp_incr, calcCelsius, calcFahrenheit, choice ;
+
+	cout << "1. To convert F to C enter 1 " << endl;
+	cout << "2. To convert C to F enter 2 " << endl;
+	cout << "What is your choice?" << endl;
+	cin >> choice;
+	
+	cout << "Please enter a value for your starting temperature: " << endl;
+	cin >> start_temp;
+	cout << "Please enter a value for your ending temperature: " << endl;
+	cin >> end_temp;
+	cout << "Please enter a value for the temperature increase: " << endl;
+	cin >> temp_incr;
+
+	if (choice == 1) {
+
+		cout << "Please enter a value for your starting temperature: " << endl;
+		cin >> start_temp;
+		cout << "Please enter a value for your ending temperature: " << endl;
+		cin >> end_temp;
+		cout << "Please enter a value for the temperature increase: " << endl;
+		cin >> temp_incr;
+		calcCelsius = (5.0 / 9.0) * (start_temp - 32.0);
+		cout << "Your temperature in celcius is: " << calcCelsius;
+	}
+	else if (choice == 2){
+		cout << "Please enter a value for your starting temperature: " << endl;
+		cin >> start_temp;
+		cout << "Please enter a value for your ending temperature: " << endl;
+		cin >> end_temp;
+		cout << "Please enter a value for the temperature increase: " << endl;
+		cin >> temp_incr;
+				
+		}
+
+
+
+
+	
+	calcCelsius = (5.0 / 9.0) * (start_temp - 32.0); 
+	calcFahrenheit = (9.0 / 5.0) * (start_temp + 32.0); 
+
+	  
+
+} 
