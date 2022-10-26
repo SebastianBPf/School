@@ -1,0 +1,67 @@
+// Sebastian Pfander
+// CS 1
+// Homework #4
+// Lab 4 for F to C convetor and perfect numbers
+
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+float calcCelsius(float startF);
+float calcFarenheit(float startC);
+
+int main()
+
+{
+	int choice;
+	float start_temp, end_temp, temp_incr, calcCelsius, calcFahrenheit, result_temp;
+
+
+
+
+	cout << "1. To convert F to C enter 1 " << endl;
+	cout << "2. To convert C to F enter 2 " << endl;
+	cout << "What is your choice?" << endl;
+	cin >> choice;
+
+
+	// converting Farenheit to Celsius
+	if (choice == 1) {
+
+		cout << "Please enter a value for your starting temperature: " << endl; cin >> start_temp;
+		cout << "Please enter a value for your ending temperature: " << endl; cin >> end_temp;
+		cout << "Please enter a value for the temperature increase: " << endl; cin >> temp_incr;
+		cout << setw(15) << "Farenheit" << setw(15) << "Celsius" << endl;
+		cout << setw(15) << "--------" << setw(15) << "--------" << endl;
+
+		for (float F = start_temp; F <= end_temp; F += temp_incr) {
+			result_temp = calcFarenheit(F);
+			cout << fixed << setprecision(1) << setw(12) << F << fixed << setprecision(1) << setw(16) << result_temp << endl;
+
+		}
+	}
+
+	// Converting Calsius to Farenheit 
+	else if (choice == 2) {
+		cout << "Please enter a value for your starting temperature: " << endl; cin >> start_temp;
+		cout << "Please enter a value for your ending temperature: " << endl; cin >> end_temp;
+		cout << "Please enter a value for the temperature increase: " << endl; cin >> temp_incr;
+		cout << setw(15) << "Celsius" << setw(15) << "Farenheit" << endl;
+		cout << setw(15) << "--------" << setw(15) << "--------" << endl;
+
+		for (float C = start_temp; C <= end_temp; C += temp_incr) {
+			result_temp = calcFarenheit(C);
+			cout << fixed << setprecision(1) << setw(13) << C << fixed << setprecision(1) << setw(16) << result_temp << endl;
+		}
+	}
+	
+}
+
+
+
+	float calcCelsius(float startF) {
+		return (5.0 / 9.0) * startF - 32.0;
+	}
+	float calcFarenheit(float startC) {
+		return (9.0 / 5.0) * startC + 32.0;
+	}
