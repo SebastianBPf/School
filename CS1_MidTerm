@@ -1,0 +1,142 @@
+// CS1 Fall Midterm 
+// Author: Sebastian Pfander
+// Goal: Create an interface that retrieves from a parallell array database the products rating 
+
+
+//Pre Processor decleration
+#include <iostream>
+#include <iomanip>
+#include <vector>
+#include <fstream>
+#include <string>
+using namespace std;
+
+//Prototypes ----------------------------------
+void populateArrays(int n, int aId[], int aSum[], int aCount[], string fileName);
+void calculateProductAvg(int n, int aId[], int aSum[], int aCount[], double aAvg[]);
+void showAllRaitings(int n, int aId[], double aAvg[], int aCount[]);
+void showBestWorstProducts(int n, int aId[], double aAvg[]);
+void searchAndShowSelectedProduct(int n, int aId[], double aAvg[], int aCount[]);
+
+
+
+//USER-DEFINED FUNCTIONS
+// -------------------------------------------------------------------------------------
+void populateArrays(int n, int aId[], int aSum[], int aCount[], string fileName)
+{
+    char* fname = new char[fileName.size() + 1];
+    strcpy(fname, fileName.c_str());
+    ifstream fin(fname); 
+    int id, rating;
+    while(fin.good())
+    {
+        fin >> id;
+        fin >> rating;
+        aSum[id] + -rating;
+        aCount[id]++;
+    }
+    fin.close();
+}
+
+void calculateProductAvg(int n, int aId[], int aSum[], int aCount[], float aAvg[])
+{
+    for (int i = 1; i <= n; i++)
+    {
+        aAvg[i] = (float)aSum[i] / aCount[i];
+    }
+}
+
+void showAllRatings(int n, int aId[], double avg[], float aCount[])
+{
+    cout << "All products:\n";
+    for (int i = 1; i <= n; i++)
+    {
+        cout << "Product ID" << aId[n] << endl;
+    }
+    if (aCount[n] == 0)
+    {
+        cout << "Sorry product does not exist\n";
+    }
+    else
+    {
+        cout << "Rated by" << aCount[n] << "people\n";
+        cout << "Average rating" << avg[n] << endl;
+    }
+    cout << endl;
+}
+
+void showBestWorstProducts(int n, int aId[], float aAvg[])
+{
+    float maxRating = 0.0f;
+    float minRating = 5.0f;
+    for(int i = 1; i <= n; i++)
+    {
+        if (aAvg[i] > maxRating)
+        {
+            maxRating = aAvg[i];
+        }
+        if (aAvg[i] < minRating)
+        {
+            minRating = aAvg[i];
+        }
+        cout << "Product ID(s) of products with highest rating ie" << maxRating << ":";
+    }
+    for (int i = 1; i <= n; i++)
+    {
+        if (aAvg[i] == maxRating)
+        {
+            cout << aId[i] << " ";
+        }
+    }
+    cout << "\nProduct ID(s) of worst products with lowest rating ie" << minRating << ":";
+    for (int i = 1; i <= n; i++)
+    {
+        if (aAvg[i] == minRating)
+        {
+            cout << aId[i] << " ";
+        }
+    }
+    cout << endl;
+}
+
+void searchAndShowSelectedProduct(int n, int aId[], double aAvg[], int aCount[])
+{
+    int id;
+    cout << "Enter Product ID: "; cin >> id;
+    for (int i = 1; i <= n; i++)
+    {
+        if (aId[i] == id)
+        {
+            cout << "Found!\n";
+            cout << "Product ID:" << aId[i] << endl;
+            cout << "Rated by:" << aCount[i] << " people\n";
+            cout << "Average Rating: " << aAvg[i] << endl;
+            return;
+        }
+    }
+    cout << "Not found\n";
+}
+
+
+int main(int argc, char** argv)
+{
+    int aId[11];
+    int n = 10;
+    aId[0] = -1;
+        for (int i = 1; i <= 10; i++)
+        {
+            aId[i] = i;
+        }
+    int aSum[11] = { 0 };
+    int aCount[11] = { 0 };
+    float aAvg[11] = { 0.0f };
+    string filename = "Productrating.txt";
+
+    populateArrays(n, aId, aSum, aCount, filename);
+    calculateProductAvg(n, aId, aSum, aCount, aAvg);
+    showAllRaitings(n, aId, aCount, aAvg);
+    showBestWorstProducts(n, aId, aAvg);
+
+    searchAndShowSelectedProduct(n, aId, aCount, aAvg);
+    return 0;
+}
