@@ -1,0 +1,128 @@
+// Section 0101 CS1 Matos
+// Author: Jeon Park
+// Program: CS1-FALL2022-Midterm2-Study-Guide PROBLEM 1
+
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+// Constants
+// ----------------------------------------------------------------------------------------------------------------
+const int MAX_SIZE = 11;
+
+// Prototypes
+// ----------------------------------------------------------------------------------------------------------------
+void populateArrays(int n, int aId[], int aSum[], int aCount[],
+                    string fileName);
+void calculateProductAvg(int n, int aId[], int aSum[], int aCount[],
+                         double aAvg[]);
+void showAllRaitings(int n, int aId[], double aAvg[], int aCount[]);
+void showBestWorstProducts(int n, int aId[], double aAvg[]);
+void searchAndShowSelectedProduct(int n, int aId[], double aAvg[], int aCount[]);
+
+// Main function
+// ----------------------------------------------------------------------------------------------------------------
+int main() {
+
+  int ID[MAX_SIZE] = {};
+  int COUNT[MAX_SIZE] = {};
+  int SUM_OF_RATING[MAX_SIZE] = {};
+  double AVERAGE[MAX_SIZE] = {};
+
+  populateArrays(
+      10, ID, SUM_OF_RATING, COUNT,
+      "rateMyProduct.txt");
+  
+  calculateProductAvg(10, ID, SUM_OF_RATING, COUNT, AVERAGE);
+
+  showAllRaitings(10, ID, AVERAGE, COUNT);
+
+  showBestWorstProducts(10, ID, AVERAGE);
+
+  searchAndShowSelectedProduct(10, ID, AVERAGE, COUNT);
+}
+
+// User-defined Functions
+// ----------------------------------------------------------------------------------------------------------------
+
+void populateArrays(int n, int aId[], int aSum[], int aCount[],
+                    string fileName) {
+  string id, rating;
+
+  for (int i = 0; i <= n; i++) {
+    aId[i] = i;
+  }
+
+  ifstream infile(fileName);
+  if (!infile) {
+    cout << "File not found\n";
+    exit(1);
+  } else {
+    while (getline(infile, id, ',')) {
+      getline(infile, rating);
+
+      aCount[stoi(id)]++;
+      aSum[stoi(id)] += stoi(rating);
+    }
+  }
+}
+
+void calculateProductAvg(int n, int aId[], int aSum[], int aCount[], double aAvg[]) {
+  for (int i = 0; i <= n; i++) {
+    aAvg[i] = double(aSum[i]) / double(aCount[i]);
+  }
+}
+
+void showAllRaitings(int n, int aId[], double aAvg[], int aCount[]) {
+  cout << "Dataset - Product Rating (Five Stars)\n";
+  for (int i = 1; i <= n; i++) {
+    cout << "Prod.  " << aId[i];
+    cout << " Stars: " << aAvg[i];
+    cout << " Reviews: " << aCount[i] << endl;
+  }
+}
+
+void showBestWorstProducts(int n, int aId[], double aAvg[]) {
+  double min = aAvg[1];
+  double max = aAvg[1];
+  int worst = aId[1];
+  int best = aId[1];
+  
+  for (int i = 1; i <= n; i++)
+    {
+      if (min > aAvg[i]){
+        min = aAvg[i];
+        worst = i;
+        }
+      if (max < aAvg[i]){
+        max = aAvg[i];
+        best = i;
+        }
+    }
+  cout << "Worst Rating: " << fixed << setprecision(1) << min << " ID#:" << worst << endl;
+  cout << "Best Rating: " << fixed << setprecision(1) << max << " ID#:" << best << endl;
+}
+
+void searchAndShowSelectedProduct(int n, int aId[], double aAvg[], int aCount[]) {
+  int userInput;
+  
+  while (true)
+    {
+      cout << "Enter #: ";
+      cin >> userInput;
+
+      if (userInput > 0 && userInput < 11) {
+        cout << "ID: " << aId[userInput] << "Rating: " << aAvg[userInput] << "Rated " << aCount[userInput] << "Times" << endl;
+      }
+      else if (userInput == 0) {
+        cout << "All done\n";
+        break;
+      }
+
+      else {
+        cout << "Sorry -- Product not found -- Try again" << endl; 
+      }
+    }
+}
