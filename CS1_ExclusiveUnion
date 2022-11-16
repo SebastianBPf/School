@@ -1,0 +1,44 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+vector<int> exclusiveUnion (vector<int> v1, vector<int> v2);
+
+int main() {
+
+  vector<int> first =  { 44, 22, 33, 11 };
+  vector<int> second = { 22, 33, 77 };
+
+  vector<int> solution = exclusiveUnion(first, second);
+  
+}
+
+vector<int> exclusiveUnion(vector<int> v1, vector<int> v2) {
+  vector<int> v3;
+
+  // comparing first to second
+  for (int i = 0; i < v1.size(); i++) {
+    bool caughtEqual = false;
+    for (int j = 0; j < v2.size(); j++) {
+      if (v1[i] == v2[j]) {
+        caughtEqual = true;
+      }
+    }
+    if (caughtEqual == false)
+      v3.push_back(v1[i]);
+  }
+
+  // comparing second to first
+  for (int i = 0; i < v2.size(); i++) {
+    bool caughtEqual = false;
+    for (int j = 0; j < v1.size(); j++) {
+      if (v2[i] == v1[j]) {
+        caughtEqual = true;
+      }
+    }
+    if (caughtEqual == false)
+      v3.push_back(v2[i]);
+  }
+  
+  return v3;
+}
