@@ -33,7 +33,7 @@ int main() {
 
   populateArrays(
       10, ID, SUM_OF_RATING, COUNT,
-      "rateMyProduct.txt");
+      "C:/temp/RateMyProduct.txt");
   
   calculateProductAvg(10, ID, SUM_OF_RATING, COUNT, AVERAGE);
 
