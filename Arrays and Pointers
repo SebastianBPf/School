@@ -1,0 +1,53 @@
+// Sebastian Pfander
+// CS1, Section 0100
+// Assignment #5
+// A program that will randomly generate the winning lotto numbers for the week and check them against the numbers entered by the user 
+
+
+//Preprocessor declarations
+#include <iostream>
+#include <string>
+#include <iomanip>
+#include <array>
+using namespace std;
+
+//Global Constants 
+const int TICKET_SIZE = 7;
+
+
+
+
+//Prototypes (Function Headers)
+bool NoDuplicates(int[], int, int);
+void GenWinNums(int[], int);
+void getLottoPicks(int[], int);
+
+
+int main()
+{
+
+	void getLottoPicks(int UserTicket[], int TICKET_SIZE);
+	{
+		
+	}
+
+	//array to hold each of the user’s lotto number selections.
+	int UserTicket[TICKET_SIZE]; // allocates 7 integers with garbage values
+
+	//Initialize the array 
+	for (int i = 0; i < TICKET_SIZE; i++) 
+	{
+		cin >> UserTicket[i];
+	}
+
+	//array to hold the winning lotto numbers
+	int WinningNums[TICKET_SIZE]; // allocates 7 integers with garbage values
+
+	//Initialize the array
+	for (int i = 0; i < TICKET_SIZE; i++) 
+	{
+
+	}
+
+
+}
