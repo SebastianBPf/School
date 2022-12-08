@@ -1,0 +1,159 @@
+// Sebastian Pfander
+// CS1, Section 0100
+// Assignment #5, Problem #1
+// A program that will randomly generate the winning lotto numbers for the week and check them against the numbers entered by the user 
+
+//Preprocessor declarations
+#include <iostream>
+#include <string>
+#include <time.h>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+//Global constant
+const int TICKET_SIZE = 7;
+
+//Prototypes (Function Headers)
+bool NoDuplicates(int[], int, int);
+void GenWinNums(int[], int);
+void getLottoPicks(int[], int);
+
+void getLottoPicks(int UserTicket[], int TICKET_SIZE)
+{
+	int x;
+	bool dup = true;
+	cout << "Please enter your lotto picks: ";
+	for (x = 0; x < TICKET_SIZE; x++)
+	{
+		{while (dup) {
+
+			cin >> UserTicket[x];
+			if (UserTicket[x] < 1 || UserTicket[x]>40)
+			{
+				cout << "Enter a number (between 1 and 40) " << x + 1 << ": ";
+				cin >> UserTicket[x];
+			}
+			dup = NoDuplicates(UserTicket, x, 1);
+		}
+		}
+		dup = true;
+	}
+	return;
+}
+bool NoDuplicates(int UserTicket[], int n, int f)
+{
+	int i, j;
+	bool dup = false;
+	if (n == 0)
+		return false;
+	for (i = 0; i <= n - 1; i++)
+		if (UserTicket[n] == UserTicket[i])
+		{
+			dup = true;
+			if (f == 1)
+			{
+				cout << "No duplicates numbers are accepted. Please enter another number:";
+				for (j = 0; j < n; j++)
+					cout << UserTicket[j] << " ";
+				cout << endl;
+			}
+		}
+	return dup;
+}
+void GenWinNums(int WinningNums[], int TICKET_SIZE)
+{
+	int i;
+	bool dup = true;
+	for (i = 0; i < TICKET_SIZE; i++)
+	{
+		while (dup)
+		{
+			WinningNums[i] = (rand() % 40) + 1;
+			dup = NoDuplicates(WinningNums, i, 2);
+		}
+		dup = true;
+	}
+	return;
+}
+
+int main()
+{
+	int selection, i, j;
+	int match = 0;
+	string name;
+	int UserTicket[TICKET_SIZE];
+	int WinningNums[TICKET_SIZE];
+	do
+	{
+		cout << "LITTLETON CITY LOTTO MODEL:" << endl
+			<< "----------------------------" << endl
+			<< "1) Play Lotto" << endl
+			<< "0) Quit" << endl;
+		cout << "Please make a selection: " << endl;
+		cin >> selection;
+		while (selection > 1 || selection < 0)
+		{
+			cout << "Enter a valid selection: ";
+			cin >> selection;
+		}
+		if (selection == 1)
+		{
+			cout << "Please enter your name: ";
+			cin >> name;
+			getLottoPicks(UserTicket, TICKET_SIZE);
+			GenWinNums(WinningNums, TICKET_SIZE);
+			//comparing user numbers to winning numbers 
+			for (i = 0; i < TICKET_SIZE; i++) {
+				for (j = 0; j < TICKET_SIZE; j++) {
+					if (UserTicket[i] == WinningNums[j]) {
+						match = match + 1;
+						break;
+					}
+
+				}
+			}
+			cout << endl << name << "'s Lotto Results" << endl
+				<< "--------------------------" << "\nWinning Numbers: ";
+			//printing the winning numbers
+			for (i = 0; i < TICKET_SIZE; i++) {
+				if (i < TICKET_SIZE - 1) {
+					cout << WinningNums[i] << ", ";
+				}
+				else {
+					cout << WinningNums[i] << endl;
+				}
+			}
+			//printing user selected numbers
+			cout << name << "'s ticket: ";
+			for (i = 0; i < TICKET_SIZE; i++) {
+				if (i < TICKET_SIZE - 1) {
+					cout << UserTicket[i] << ", ";
+				}
+				else {
+					cout << UserTicket[i] << endl;
+				}
+			}
+			//printing to console the number of matches
+			cout << "\nResults: " << endl << "------------------" << endl << "Number of Matches: " << match << endl;
+			//printing to console the lotto winnings
+			cout << "Winnings: ";
+			if (match == 7)
+				cout << "JACKPOT - 1 MILLION" << endl;
+			else if (match == 6)
+				cout << "GREAT! - $100,000" << endl;
+			else if (match == 5)
+				cout << "LUCKY YOU! - $5,000" << endl;
+			else if (match == 4)
+				cout << "NOT BAD - $100" << endl;
+			else if (match == 3)
+				cout << "FREE TICKET" << endl;
+			else if (match <= 2)
+				cout << "SORRY NOTHING" << endl;
+		}
+		if (selection == 0)
+		{
+			cout << "Quitting" << endl;
+		}
+	} while (selection != 0);
+}
