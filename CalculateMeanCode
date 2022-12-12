@@ -1,0 +1,27 @@
+
+// define the function
+double CalculateMean(double data[], int numItems)
+{
+    // create a variable to hold the sum of the data items
+    double total;
+
+    // calculate the sum of the data items
+    for (int i = 0; i < numItems; i++)
+    {
+        total += data[i];
+    }
+
+    // calculate and return the mean
+    return  total / numItems;
+}
+
+int main()
+{
+    // define an array of floating-point data items
+    double data[] = { 1.23456789123456, 2.34567891234567, 3.45678912345678 };
+
+    // calculate and print the mean of the data items
+    std::cout << "The mean of the data items is: " << CalculateMean(data, 3 ) << std::endl;
+
+    return 0;
+}
