@@ -14,7 +14,7 @@ double getTotalSold(bool[ROWS][COLS], double[ROWS]);
 int main()
 {
 	double prices[ROWS] =
-	{ 40,40,35,35,35,30,30,25,25,25,12.50,12.50,12.50,9.50,9.50 };
+	{10,10,10,8,8,8,6,6,6,4,4,4,2,2,2};
 	//declare variables
 	char seats[ROWS][COLS];
 	bool availableSeat[ROWS][COLS];
@@ -66,7 +66,7 @@ int main()
 }
 
 void readPrices() {
-	double ticketsP;
+	double ticketsP[ROWS];
 	// Open the prices.txt file for reading
 	ifstream inputFile;
 	inputFile.open("C:/temp/prices.txt");
@@ -81,7 +81,7 @@ void readPrices() {
 }
 
 
-	//print rows and columns
+//print rows and columns
 void printSeats(char screen[ROWS][COLS], bool available[ROWS][COLS])
 {
 	cout << "* Seats available" << endl;
@@ -139,8 +139,7 @@ void readSeat(bool position[ROWS][COLS], int& counter)
 		{
 			cout << "Invalid : Row # must be between 0 and 14" << endl;
 			cin >> row;
-		} 
-		while (row < 0 || row > 14);
+		} while (row < 0 || row > 14);
 	}
 	cout << "Enter Seat : ";
 	cin >> seat;
