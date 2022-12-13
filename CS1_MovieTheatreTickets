@@ -1,3 +1,550 @@
+// Sebastian Pfander
+// CS1, Section 0100
+// Assignment #5, Problem #2
+// Write a program for a small movie theatre that allows them to sell movie tickets
+
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+using namespace std;
+
+const int ROWS = 15;
+const int COLS = 20;
+
+//function prototypes
+void printSeats(char[ROWS][COLS], bool[ROWS][COLS]);
+void readSeat(bool[ROWS][COLS], int&);
+double getTotalSold(bool[ROWS][COLS], double[ROWS]);
+
+int main()
+{
+	double prices[ROWS] =
+	{ 10,10,10,8,8,8,6,6,6,4,4,4,2,2,2 };
+	//declare variables
+	char seats[ROWS][COLS];
+	bool availableSeat[ROWS][COLS];
+	double ticketsP[ROWS];
+	int choice;
+	int counter = 0;
+	double totalAmount = 0.0;
+
+	//Initializing all seats as available
+	for (int count = 0; count < ROWS; count++)
+	{
+		for (int count1 = 0; count1 < COLS; count1++)
+		{
+			availableSeat[count][count1] = true;
+			seats[count][count1] = '*';
+		}
+	}
+
+	//printing the buy initial buy menu
+	printSeats(seats, availableSeat);
+	while (true)
+	{
+		cout << "Menu:" << endl;
+		cout << "1) Buy a ticket" << endl;
+		cout << "2) Total sell and exit\n" << endl;
+		cout << "Enter your choice :";
+		cin >> choice;
+		if (choice == 1)
+		{
+			readSeat(availableSeat, counter);
+		}
+		else if (choice == 2)
+		{
+			//calculate total cost and print the number
+			//of tickets sold and total cost to console.
+			totalAmount = getTotalSold(availableSeat, prices);
+			cout << fixed << setprecision(2)
+				<< "\nUPDATED SEATING CHART AND SALES INFO\n"
+				<< "------------------------------------\n";
+			printSeats(seats, availableSeat);
+			cout << "\nTOTAL TICKETS SOLD: " << counter << "\nTOTAL REVENUE: $"
+				<< totalAmount << endl;
+		}
+
+	}
+
+	system("PAUSE");
+	return 0;
+}
+
+void readPrices() {
+	double ticketsP[ROWS];
+	// Open the prices.txt file for reading
+	ifstream inputFile;
+	inputFile.open("C:/temp/prices.txt");
+
+	// Read the prices for each row from the file
+	for (int i = 0; i < ROWS; i++) {
+		inputFile >> ticketsP[i];
+	}
+
+	// Close the file
+	inputFile.close();
+}
+
+
+//print rows and columns
+void printSeats(char screen[ROWS][COLS], bool available[ROWS][COLS])
+{
+	cout << "* Seats available" << endl;
+	cout << "# Reserved Seats" << endl;
+	cout << "Seats:";
+	for (int count = 0; count < COLS; count++)
+	{
+		if (count < 10)
+		{
+			cout << " " << count;
+		}
+		else
+		{
+			cout << " " << count;
+		}
+	}
+	cout << "\n";
+	for (int count1 = 0; count1 < ROWS; count1++)
+	{
+		if (count1 < 10)
+		{
+			cout << "Row " << count1 << " ";
+		}
+		else
+		{
+			cout << "Row " << count1;
+		}
+		for (int count2 = 0; count2 < COLS; count2++)
+		{
+			if (available[count1][count2] == true)
+			{
+				screen[count1][count2] = '*';
+				cout << " " << screen[count1][count2];
+			}
+			else
+			{
+				screen[count1][count2] = '#';
+				cout << " " << screen[count1][count2];
+			}
+		}
+
+		cout << "\n";
+	}
+}
+
+void readSeat(bool position[ROWS][COLS], int& counter)
+{
+	int row;
+	int seat;
+	cout << "Enter row : ";
+	cin >> row;
+	if (row < 0 || row > 14)
+	{
+		do
+		{
+			cout << "Invalid : Row # must be between 0 and 14" << endl;
+			cin >> row;
+		} while (row < 0 || row > 14);
+	}
+	cout << "Enter Seat : ";
+	cin >> seat;
+	cout << endl;
+	if (seat < 0 || seat > 19)
+	{
+		do
+		{
+			cout << "Invalid : Seat # must be between 0 and 19" << endl;
+			cin >> seat;
+		} while (seat < 0 || seat > 19);
+	}
+	if (position[row][seat] != true)
+	{
+		cout << "Already occupied.Try other seat" << endl;
+	}
+	else
+	{
+		position[row][seat] = false;
+		counter++;
+	}
+}
+//calculating the total cost of the sold seats
+double getTotalSold(bool seats[ROWS][COLS], double prices[ROWS])
+{
+	double totalcost = 0.0;
+	for (int count = 0; count < ROWS; count++)
+	{
+		for (int count1 = 0; count1 < COLS; count1++)
+		{
+			if (seats[count][count1] != true)
+			{
+				totalcost += prices[count];
+			}
+		}
+	}
+	return totalcost;
+}
+
+
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+using namespace std;
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+using namespace std;
+
+const int ROWS = 15;
+const int COLS = 20;
+
+//function prototypes
+void printSeats(char[ROWS][COLS], bool[ROWS][COLS]);
+void readSeat(bool[ROWS][COLS], int&);
+double getTotalSold(bool[ROWS][COLS], double[ROWS]);
+
+int main()
+{
+	double prices[ROWS] =
+	{ 10,10,10,8,8,8,6,6,6,4,4,4,2,2,2 };
+	//declare variables
+	char seats[ROWS][COLS];
+	bool availableSeat[ROWS][COLS];
+	double ticketsP[ROWS];
+	int choice;
+	int counter = 0;
+	double totalAmount = 0.0;
+
+	//Initializing all seats as available
+	for (int count = 0; count < ROWS; count++)
+	{
+		for (int count1 = 0; count1 < COLS; count1++)
+		{
+			availableSeat[count][count1] = true;
+			seats[count][count1] = '*';
+		}
+	}
+
+	//printing the buy initial buy menu
+	printSeats(seats, availableSeat);
+	while (true)
+	{
+		cout << "Menu:" << endl;
+		cout << "1) Buy a ticket" << endl;
+		cout << "2) Total sell and exit\n" << endl;
+		cout << "Enter your choice :";
+		cin >> choice;
+		if (choice == 1)
+		{
+			readSeat(availableSeat, counter);
+		}
+		else if (choice == 2)
+		{
+			//calculate total cost and print the number
+			//of tickets sold and total cost to console.
+			totalAmount = getTotalSold(availableSeat, prices);
+			cout << fixed << setprecision(2)
+				<< "\nUPDATED SEATING CHART AND SALES INFO\n"
+				<< "------------------------------------\n";
+			printSeats(seats, availableSeat);
+			cout << "\nTOTAL TICKETS SOLD: " << counter << "\nTOTAL REVENUE: $"
+				<< totalAmount << endl;
+		}
+
+	}
+
+	system("PAUSE");
+	return 0;
+}
+
+void readPrices() {
+	double ticketsP[ROWS];
+	// Open the prices.txt file for reading
+	ifstream inputFile;
+	inputFile.open("C:/temp/prices.txt");
+
+	// Read the prices for each row from the file
+	for (int i = 0; i < ROWS; i++) {
+		inputFile >> ticketsP[i];
+	}
+
+	// Close the file
+	inputFile.close();
+}
+
+
+//print rows and columns
+void printSeats(char screen[ROWS][COLS], bool available[ROWS][COLS])
+{
+	cout << "* Seats available" << endl;
+	cout << "# Reserved Seats" << endl;
+	cout << "Seats:";
+	for (int count = 0; count < COLS; count++)
+	{
+		if (count < 10)
+		{
+			cout << " " << count;
+		}
+		else
+		{
+			cout << " " << count;
+		}
+	}
+	cout << "\n";
+	for (int count1 = 0; count1 < ROWS; count1++)
+	{
+		if (count1 < 10)
+		{
+			cout << "Row " << count1 << " ";
+		}
+		else
+		{
+			cout << "Row " << count1;
+		}
+		for (int count2 = 0; count2 < COLS; count2++)
+		{
+			if (available[count1][count2] == true)
+			{
+				screen[count1][count2] = '*';
+				cout << " " << screen[count1][count2];
+			}
+			else
+			{
+				screen[count1][count2] = '#';
+				cout << " " << screen[count1][count2];
+			}
+		}
+
+		cout << "\n";
+	}
+}
+
+void readSeat(bool position[ROWS][COLS], int& counter)
+{
+	int row;
+	int seat;
+	cout << "Enter row : ";
+	cin >> row;
+	if (row < 0 || row > 14)
+	{
+		do
+		{
+			cout << "Invalid : Row # must be between 0 and 14" << endl;
+			cin >> row;
+		} while (row < 0 || row > 14);
+	}
+	cout << "Enter Seat : ";
+	cin >> seat;
+	cout << endl;
+	if (seat < 0 || seat > 19)
+	{
+		do
+		{
+			cout << "Invalid : Seat # must be between 0 and 19" << endl;
+			cin >> seat;
+		} while (seat < 0 || seat > 19);
+	}
+	if (position[row][seat] != true)
+	{
+		cout << "Already occupied.Try other seat" << endl;
+	}
+	else
+	{
+		position[row][seat] = false;
+		counter++;
+	}
+}
+//calculating the total cost of the sold seats
+double getTotalSold(bool seats[ROWS][COLS], double prices[ROWS])
+{
+	double totalcost = 0.0;
+	for (int count = 0; count < ROWS; count++)
+	{
+		for (int count1 = 0; count1 < COLS; count1++)
+		{
+			if (seats[count][count1] != true)
+			{
+				totalcost += prices[count];
+			}
+		}
+	}
+	return totalcost;
+}
+const int ROWS = 15;
+const int COLS = 20;
+
+//function prototypes
+void printSeats(char[ROWS][COLS], bool[ROWS][COLS]);
+void readSeat(bool[ROWS][COLS], int&);
+double getTotalSold(bool[ROWS][COLS], double[ROWS]);
+
+int main()
+{
+	double prices[ROWS] =
+	{10,10,10,8,8,8,6,6,6,4,4,4,2,2,2};
+	//declare variables
+	char seats[ROWS][COLS];
+	bool availableSeat[ROWS][COLS];
+	double ticketsP[ROWS];
+	int choice;
+	int counter = 0;
+	double totalAmount = 0.0;
+
+	//Initializing all seats as available
+	for (int count = 0; count < ROWS; count++)
+	{
+		for (int count1 = 0; count1 < COLS; count1++)
+		{
+			availableSeat[count][count1] = true;
+			seats[count][count1] = '*';
+		}
+	}
+
+	//printing the buy initial buy menu
+	printSeats(seats, availableSeat);
+	while (true)
+	{
+		cout << "Menu:" << endl;
+		cout << "1) Buy a ticket" << endl;
+		cout << "2) Total sell and exit\n" << endl;
+		cout << "Enter your choice :";
+		cin >> choice;
+		if (choice == 1)
+		{
+			readSeat(availableSeat, counter);
+		}
+		else if (choice == 2)
+		{
+			//calculate total cost and print the number
+			//of tickets sold and total cost to console.
+			totalAmount = getTotalSold(availableSeat, prices);
+			cout << fixed << setprecision(2)
+				<< "\nUPDATED SEATING CHART AND SALES INFO\n"
+				<< "------------------------------------\n";
+			printSeats(seats, availableSeat);
+			cout << "\nTOTAL TICKETS SOLD: " << counter << "\nTOTAL REVENUE: $"
+				<< totalAmount << endl;
+		}
+
+	}
+
+	system("PAUSE");
+	return 0;
+}
+
+void readPrices() {
+	double ticketsP[ROWS];
+	// Open the prices.txt file for reading
+	ifstream inputFile;
+	inputFile.open("C:/temp/prices.txt");
+
+	// Read the prices for each row from the file
+	for (int i = 0; i < ROWS; i++) {
+		inputFile >> ticketsP[i];
+	}
+
+	// Close the file
+	inputFile.close();
+}
+
+
+//print rows and columns
+void printSeats(char screen[ROWS][COLS], bool available[ROWS][COLS])
+{
+	cout << "* Seats available" << endl;
+	cout << "# Reserved Seats" << endl;
+	cout << "Seats:";
+	for (int count = 0; count < COLS; count++)
+	{
+		if (count < 10)
+		{
+			cout << " " << count;
+		}
+		else
+		{
+			cout << " " << count;
+		}
+	}
+	cout << "\n";
+	for (int count1 = 0; count1 < ROWS; count1++)
+	{
+		if (count1 < 10)
+		{
+			cout << "Row " << count1 << " ";
+		}
+		else
+		{
+			cout << "Row " << count1;
+		}
+		for (int count2 = 0; count2 < COLS; count2++)
+		{
+			if (available[count1][count2] == true)
+			{
+				screen[count1][count2] = '*';
+				cout << " " << screen[count1][count2];
+			}
+			else
+			{
+				screen[count1][count2] = '#';
+				cout << " " << screen[count1][count2];
+			}
+		}
+
+		cout << "\n";
+	}
+}
+
+void readSeat(bool position[ROWS][COLS], int& counter)
+{
+	int row;
+	int seat;
+	cout << "Enter row : ";
+	cin >> row;
+	if (row < 0 || row > 14)
+	{
+		do
+		{
+			cout << "Invalid : Row # must be between 0 and 14" << endl;
+			cin >> row;
+		} while (row < 0 || row > 14);
+	}
+	cout << "Enter Seat : ";
+	cin >> seat;
+	cout << endl;
+	if (seat < 0 || seat > 19)
+	{
+		do
+		{
+			cout << "Invalid : Seat # must be between 0 and 19" << endl;
+			cin >> seat;
+		} while (seat < 0 || seat > 19);
+	}
+	if (position[row][seat] != true)
+	{
+		cout << "Already occupied.Try other seat" << endl;
+	}
+	else
+	{
+		position[row][seat] = false;
+		counter++;
+	}
+}
+//calculating the total cost of the sold seats
+double getTotalSold(bool seats[ROWS][COLS], double prices[ROWS])
+{
+	double totalcost = 0.0;
+	for (int count = 0; count < ROWS; count++)
+	{
+		for (int count1 = 0; count1 < COLS; count1++)
+		{
+			if (seats[count][count1] != true)
+			{
+				totalcost += prices[count];
+			}
+		}
+	}
+	return totalcost;
+}
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
