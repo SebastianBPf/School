@@ -1,0 +1,200 @@
+#include <iostream>
+using namespace std;
+
+int recursiveMult(unsigned int d, unsigned int f)
+{
+    if (d == 0 || f == 0) {
+        return 0;
+    }
+    else if (f == 1) {
+        return d;
+    }
+    else {
+        return d + recursiveMult(d, f - 1);
+    }
+}
+
+int getDigitCount(int num, int digit)
+{
+    if (num < 10) {
+        if (num == digit) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+    int count = getDigitCount(num / 10, digit);
+    if (num % 10 == digit) {
+        count++;
+    }
+    return count;
+
+}
+
+string doubleDollars(string n)
+{
+    if (n.length() < 2) {
+        return n;
+    }
+    else if (n[0] == n[1]) {
+        return n.substr(0, 1) + "$$" + doubleDollars(n.substr(1));
+    }
+    else {
+        return  n.substr(0, 1) + doubleDollars(n.substr(1));
+    }
+}
+
+string findAngles(string str) {
+    if (str.empty()) return "";
+    string output = "";
+    if (str[0] == '<') {
+        output += '<';
+        output += findAngles(str.substr(1, str.length()));
+        return output;
+    }
+    else if (str[0] == '>') {
+        return ">";
+    }
+    else {
+        string result = findAngles(str.substr(1, str.length()));
+        if (result.empty()) return "";
+        if (result[0] == '<') return result;
+        result.insert(0, 1, str[0]);
+        return result;
+    }
+}
+
+bool canEqualTarget(const int a[], int size, int target)
+{
+    if (target == 0) {
+        return true;
+    }
+    if (size == 0) {
+        return false;
+    }
+
+    return
+        canEqualTarget(a + 1, size - 1, target - a[0]) || canEqualTarget(a + 1, size - 1, target);
+}
+
+bool connectedPath(string maze[], int nRows, int nCols, int sr, int sc, int er, int ec)
+{
+    if (sr == er && sc == ec)
+    {
+        return true;
+    }
+    else
+    {
+        if (sc - 1 >= 0)
+        {
+            if (maze[sr][sc - 1] == '.')
+            {
+                maze[sr][sc - 1] = '@';
+                if (connectedPath(maze, nRows, nCols, sr, sc - 1, er, ec))
+                {
+                    return true;
+                }
+                maze[sr][sc - 1] = '.';
+            }
+        }
+        if (sc + 1 < nCols)
+        {
+            if (maze[sr][sc + 1] == '.')
+            {
+                maze[sr][sc + 1] = '@';
+                if (connectedPath(maze, nRows, nCols, sr, sc + 1, er, ec))
+                {
+                    return true;
+                }
+                maze[sr][sc + 1] = '.';
+            }
+        }
+        if (sr - 1 >= 0)
+        {
+            if (maze[sr - 1][sc] == '.')
+            {
+                maze[sr - 1][sc] = '@';
+                if (connectedPath(maze, nRows, nCols, sr - 1, sc, er, ec))
+                {
+                    return true;
+                }
+                maze[sr - 1][sc] = '.';
+            }
+        }
+        if (sr + 1 < nRows)
+        {
+            if (maze[sr + 1][sc] == '.')
+            {
+                maze[sr + 1][sc] = '@';
+                if (connectedPath(maze, nRows, nCols, sr + 1, sc, er, ec))
+                {
+                    return true;
+                }
+                maze[sr + 1][sc] = '.';
+            }
+        }
+        return false;
+    }
+}
+
+
+
+
+int main() {
+    cout << recursiveMult(4, 12) << endl;
+    cout << recursiveMult(1, 12) << endl;
+    cout << recursiveMult(0, 12) << endl;
+    cout << getDigitCount(8821888, 8) << endl;
+    cout << doubleDollars("goodbye") << endl;
+    cout << doubleDollars("yyuu") << endl;
+    cout << doubleDollars("aaaa") << endl;
+    cout << findAngles("abc<bnm>789") << endl;
+    cout << findAngles("<x>7") << endl;
+    cout << findAngles("4agh<y>") << endl;
+
+    int a1[] = { 2, 4, 8 };
+    int a2[] = { 2, 4, 8 };
+    int a3[] = { -2, 4, 8, 18, 3 };
+    int a4[] = { 2, 4, 8, 6 };
+
+
+    int t1 = 10;
+    int t2 = 12;
+    int t3 = 24;
+    int t4 = 11;
+
+    bool expected1 = true;
+    bool expected2 = true;
+    bool expected3 = true;
+    bool expected4 = false;
+
+    bool result1 = canEqualTarget(a1, 3, t1);
+    bool result2 = canEqualTarget(a2, 3, t2);
+    bool result3 = canEqualTarget(a3, 5, t3);
+    bool result4 = canEqualTarget(a4, 4, t4);
+
+    cout << "Test 1: " << (result1 == expected1 ? "Passed" : "Failed") << endl;
+    cout << "Test 2: " << (result2 == expected2 ? "Passed" : "Failed") << endl;
+    cout << "Test 3: " << (result3 == expected3 ? "Passed" : "Failed") << endl;
+    cout << "Test 4: " << (result4 == expected4 ? "Passed" : "Failed") << endl;
+
+    string maze[10] = {
+          "XXXXXXXXXX",
+          "X.......@X",
+          "XX@X@@.XXX",
+          "X..X.X...X",
+          "X..X...@.X",
+          "X....XXX.X",
+          "X@X....XXX",
+          "X..XX.XX.X",
+          "X...X....X",
+          "XXXXXXXXXX"
+    };
+
+    if (connectedPath(maze, 10, 10, 6, 4, 1, 1))
+        cout << "Solvable!" << endl;
+    else
+        cout << "Out of luck!" << endl;
+}
+
