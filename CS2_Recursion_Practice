@@ -1,0 +1,141 @@
+#include <iostream>
+using namespace std;
+
+double Power(double x, unsigned int n) {
+
+    if (n == 0) {
+        return 1;
+    }
+    else {
+        return x * Power(x, n - 1);
+    }
+}
+
+double Power2(double x, unsigned int n) {
+
+    if (n == 0) {
+        return 1;
+    }
+    else {
+        double temp = Power2(x, n / 2);
+        if (n % 2 == 0) {
+            return temp * temp;
+        }
+        else {
+            return x * temp * temp;
+        }
+    }
+}
+
+int Mult(unsigned int m, unsigned int n) {
+    if (n == 0) {
+        return 0;
+    }
+    else {
+        return m + Mult(m, n - 1);
+    }
+
+}
+
+int Product(int m, int n)
+{
+    if (m  == n) {
+        return m;
+    }
+    else {
+        return m * Product(m + 1, n);
+    }
+}
+
+int Min(int A[], int n)
+{
+    if (n == 0) {
+        return A[0];
+    }
+    if (A[n - 1] < Min(A, n - 1)) {
+        return A[n - 1];
+    }
+    else {
+        return (Min(A, n - 1));
+    }
+}
+
+string pairPlus(string n) {
+
+    if (n.length() > 1){
+        string a = n.substr(0, 1);
+        string b = n.substr(1, 1);
+        if (a == b){
+            return a + "++" + pairPlus(n.substr(1, n.length() - 1));
+        }
+        else{
+            return a + pairPlus(n.substr(1, n.length() - 1));
+        }
+    }
+    else {
+        return n;
+    }   
+}
+
+int fibonacci(int n) {
+    if (n == 0) {
+        return 0;
+    }
+    else if (n == 1) {
+        return 1;
+    }
+    else {
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+
+
+int main() 
+{
+    cout << "Test for Power: " << endl;
+    cout << Power(5, 3) << endl;
+    cout << endl;
+
+    cout << "Test for Power2: " << endl;
+    cout << Power2(5, 3) << endl;
+    cout << endl;
+
+    cout << "Test for Mult: " << endl;
+    cout << Mult(5, 5) << endl;
+    cout << endl;
+
+    cout << "Test for Product: " << endl;
+    cout << Product(4, 9) << endl;
+    cout << endl;
+
+    cout << "Test for min: " << endl;
+    int arr[] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+    int n = 0;
+    cout << Min(arr, n) << endl;
+    cout << endl;
+
+    cout << "Test for pairPlus: " << endl;
+    cout << pairPlus("hello") << endl;
+    cout << pairPlus("xxyy") << endl;
+    cout << pairPlus("aaaa") << endl;
+    cout << endl;
+
+    cout << "Test for Fibonacci: " << endl;
+    cout << fibonacci(0) << endl;
+    cout << fibonacci(1) << endl;
+    cout << fibonacci(2) << endl;
+    cout << fibonacci(3) << endl;
+    cout << fibonacci(4) << endl;
+    cout << fibonacci(5) << endl;
+    cout << fibonacci(6) << endl;
+    cout << fibonacci(7) << endl;
+    cout << fibonacci(8) << endl;
+
+}
+
+
+
+
+
+
+
