@@ -1,0 +1,197 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <typeinfo>
+using namespace std;
+
+
+const int MAXGUESS = 1000;
+int feedback = 0;
+int guess;
+
+class Player {
+public:
+	int min, max;
+	virtual int getGuess() = 0;
+	void feedBack() {
+		switch (feedback) {
+		case -1:
+			max = guess;
+			break;
+		case 1:
+			min = guess;
+			break;
+		}
+	}
+};
+
+class HumanPlayer : public Player {
+public:
+
+	HumanPlayer() {
+		min = 0, max = MAXGUESS;
+	}
+
+	int getGuess() {
+		int i;
+		cout << "Guess a number: ";
+		cin >> i;
+		guess = i;
+		return i;
+	}
+};
+
+class ComputerPlayer : public Player {
+public:
+	ComputerPlayer() {
+		min = 0, max = MAXGUESS;
+	}
+
+	int getGuess() {
+		srand(time(NULL));
+		int answer = rand() % MAXGUESS;
+		cout << "Guess a number: " << answer << endl;
+		return answer;
+	}
+};
+
+class SmartComputerPlayer : public ComputerPlayer {
+public:
+	SmartComputerPlayer() {
+		min = 0, max = MAXGUESS;
+	}
+
+	int getGuess() {
+		guess = (min + max) / 2;
+		cout << "Guess a number: " << guess << endl;
+		return guess;
+	}
+
+	void updateGuess(bool isGuessTooHigh) {
+		if (isGuessTooHigh) {
+			max = guess - 1;
+		}
+		else {
+			min = guess + 1;
+		}
+	}
+};
+
+bool checkForWin(int guess, int answer) {
+	if (answer == guess) {
+		cout << "You're right! You win!" << endl;
+		return true;
+	}
+	else if (answer < guess) {
+		cout << "Your guess is too high." << endl;
+		feedback = -1;
+	}
+	else {
+		cout << "Your guess is too low." << endl;
+		feedback = 1;
+	}
+	return false;
+}
+
+int play(Player& player1, Player& player2) { // do not change this line
+	// change anything you like below this line
+
+	int answer, guess = 0;
+	int numGuesses = 0;
+	answer = rand() % (MAXGUESS + 1);
+	bool win = false;
+	while (!win) {
+		cout << "\nPlayer 1's turn to guess." << endl;
+		guess = player1.getGuess();
+		numGuesses++;
+		win = checkForWin(guess, answer);
+		if (win) break;
+		player2.feedBack();
+
+		cout << "\nPlayer 2's turn to guess." << endl;
+		guess = player2.getGuess();
+		numGuesses++;
+		win = checkForWin(guess, answer);
+
+		player1.feedBack();
+	}
+	return numGuesses;
+}
+
+int main() {
+	srand(time(0));
+	int answer = rand() % MAXGUESS + 1;
+	int choice1, choice2;
+	Player* p1, * p2;
+	cout << "Please make a selection for Player 1" << endl;
+	cout << "1. Human Player" << endl;
+	cout << "2. Computer Player" << endl;
+	cout << "3. Smart Computer Player" << endl;
+	cout << "Please enter a number between 1 and 3: ";
+	cin >> choice1;
+
+	switch (choice1) {
+	case 1:
+		p1 = new HumanPlayer();
+		break;
+	case 2:
+		p1 = new ComputerPlayer();
+		break;
+	case 3:
+		p1 = new SmartComputerPlayer();
+		break;
+	default:
+		cout << "Invalid Choice!" << endl;
+		return 0;
+	}
+
+	cout << "\nPlease make a selection for Player 2" << endl;
+	cout << "1. Human Player" << endl;
+	cout << "2. Computer Player" << endl;
+	cout << "3. Smart Computer Player" << endl;
+	cout << "Please enter a number between 1 and 3: ";
+	cin >> choice2;
+
+	switch (choice2) {
+	case 1:
+		p2 = new HumanPlayer();
+		break;
+	case 2:
+		p2 = new ComputerPlayer();
+		break;
+	case 3:
+		p2 = new SmartComputerPlayer();
+		break;
+	default:
+		cout << "Invalid Choice!" << endl;
+		return 0;
+	}
+
+	cout << "\n******* - Round 1 - *******" << endl;
+	bool win = false;
+	int numGuesses = 0;
+
+	while (!win) {
+		cout << "\nPlayer 1's turn to guess." << endl;
+		int guess1 = p1->getGuess();
+		numGuesses++;
+		win = checkForWin(guess1, answer);
+		if (win) break;
+		p2->feedBack();
+
+		cout << "\nPlayer 2's turn to guess." << endl;
+		int guess2 = p2->getGuess();
+		numGuesses++;
+		win = checkForWin(guess2, answer);
+
+		p1->feedBack();
+
+		if (numGuesses % 2 == 0) {
+			cout << "\n******* - Round " << numGuesses / 2 + 1 << " - *******" << endl;
+		}
+	}
+
+	delete p1;
+	delete p2;
+	return 0;
+}
