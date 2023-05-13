@@ -48,10 +48,14 @@ public:
 	}
 
 	int getGuess() {
-		srand(time(NULL));
-		int answer = rand() % MAXGUESS;
-		cout << "Guess a number: " << answer << endl;
-		return answer;
+		static bool seeded = false;
+		if (!seeded) {
+			srand(time(NULL));
+			seeded = true;
+		}
+		int guess = rand() % (MAXGUESS + 1);
+		cout << "Guess a number: " << guess << endl;
+		return guess;
 	}
 };
 
@@ -61,9 +65,9 @@ public:
 		min = 0, max = MAXGUESS;
 	}
 
-	int getGuess() {
+	int getGuess() override {
 		guess = (min + max) / 2;
-		cout << "Guess a number: " << guess << endl;
+		cout << "Smart computer guesses " << guess << endl;
 		return guess;
 	}
 
@@ -78,6 +82,7 @@ public:
 };
 
 bool checkForWin(int guess, int answer) {
+	Player* p2 = new SmartComputerPlayer();
 	if (answer == guess) {
 		cout << "You're right! You win!" << endl;
 		return true;
@@ -85,10 +90,16 @@ bool checkForWin(int guess, int answer) {
 	else if (answer < guess) {
 		cout << "Your guess is too high." << endl;
 		feedback = -1;
+		if (typeid(*p2) == typeid(SmartComputerPlayer)) {
+			static_cast<SmartComputerPlayer*>(p2)->updateGuess(true);
+		}
 	}
 	else {
 		cout << "Your guess is too low." << endl;
 		feedback = 1;
+		if (typeid(*p2) == typeid(SmartComputerPlayer)) {
+			static_cast<SmartComputerPlayer*>(p2)->updateGuess(false);
+		}
 	}
 	return false;
 }
