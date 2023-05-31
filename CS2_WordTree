@@ -1,0 +1,323 @@
+#include <iostream>
+#include <string>
+#include <cassert>	
+using namespace std;
+
+typedef string ItemType;
+
+struct WordNode {
+	ItemType m_data;
+	WordNode* m_left;
+	WordNode* m_right;
+	// You may add additional data members and member functions in WordNode
+	int count;
+};
+
+class WordTree {
+private:
+	WordNode* root;
+
+	//helper functions
+	void printTree(WordNode* node, std::ostream& out) const;
+	int distinctWords(WordNode* node) const;
+	int totalWords(WordNode* node) const;
+	void copyTree(WordNode*& copiedTreeNode, WordNode* otherTreeNode);
+	void destroy(WordNode*& node);
+
+public:
+	// default constructor
+	WordTree() : root(nullptr) { };
+	// copy constructor
+	WordTree(const WordTree& rhs);
+	// assignment operator
+	const WordTree& operator=(const WordTree& rhs);
+	// Inserts v into the WordTree
+	void add(ItemType v);
+	// Returns the number of distinct words / nodes
+	int distinctWords() const;
+	// Returns the total number of words inserted, including
+	// duplicate values
+	int totalWords() const;
+	// Prints the LinkedList
+	friend ostream& operator<<(std::ostream& out, const WordTree& rhs);
+	// Destroys all the dynamically allocated memory in the // tree
+	~WordTree();
+	bool remove(ItemType v);
+
+};
+
+// helper function to copy the tree nodes from rhs to this tree
+void WordTree::copyTree(WordNode*& node, WordNode* rhsTreeNode)
+{
+	if (rhsTreeNode == nullptr) // rhsTreeNode is null, set node to null
+		node = nullptr;
+	else // rhsTreeNode is not null
+	{
+		// create a new WordNode
+		node = new WordNode;
+		// copy data and count
+		node->m_data = rhsTreeNode->m_data;
+		node->count = rhsTreeNode->count;
+		// copy the left subtree of rhsTreeNode to left subtree of node
+		copyTree(node->m_left, rhsTreeNode->m_left);
+		// copy the right subtree of rhsTreeNode to right subtree of node
+		copyTree(node->m_right, rhsTreeNode->m_right);
+	}
+}
+
+// copy constructor
+WordTree::WordTree(const WordTree& rhs)
+{
+	if (rhs.root == nullptr) // rhs is empty, set root to empty
+		root = nullptr;
+	else // copy the nodes from rhs tree starting with root
+		copyTree(root, rhs.root);
+}
+
+// assignment operator
+const WordTree& WordTree:: operator=(const WordTree& rhs)
+{
+	if (this != &rhs) // avoids self-assignment
+	{
+		if (root != nullptr) // this tree is not empty
+		{
+			//destroy the tree
+			destroy(root);
+
+			if (rhs.root == nullptr) // rhs is empty, set root to null
+				root = nullptr;
+			else // copy the tree from rhs starting from root
+				copyTree(root, rhs.root);
+		}
+	}
+
+	return *this;
+}
+
+// Inserts v into the WordTree
+void WordTree::add(ItemType v)
+{
+	if (root == nullptr) // tree is empty
+	{
+		// create a new WordNode as root
+		root = new WordNode;
+		// set data as v and count as 1
+		root->m_data = v;
+		root->count = 1;
+		// set left and right child as null
+		root->m_left = nullptr;
+		root->m_right = nullptr;
+	}
+	else // tree is not empty
+	{
+		// set curr to root
+		WordNode* curr = root;
+
+		// loop to find the position of insertion of v
+		while (curr != nullptr)
+		{
+			if (curr->m_data == v) // v already exists, increment count of curr by 1 and exit the loop
+			{
+				curr->count++;
+				break;
+			}
+			else if (curr->m_data > v) // v occurs alphabetically before curr's data, insert in left subtree of curr
+			{
+				if (curr->m_left == nullptr) // no left child, make it the left child of curr
+				{
+					curr->m_left = new WordNode;
+					curr = curr->m_left;
+					curr->m_data = v;
+					curr->count = 1;
+					curr->m_left = nullptr;
+					curr->m_right = nullptr;
+					break;
+				}
+				else // move to left subtree of curr
+					curr = curr->m_left;
+			}
+			else // v occurs alphabetically after curr's data, insert in right subtree of curr
+			{
+				if (curr->m_right == nullptr) // no right child, make v the right child of curr
+				{
+					curr->m_right = new WordNode;
+					curr = curr->m_right;
+					curr->m_data = v;
+					curr->count = 1;
+					curr->m_left = nullptr;
+					curr->m_right = nullptr;
+					break;
+				}
+				else // move to right child of curr
+					curr = curr->m_right;
+			}
+		}
+	}
+}
+
+// helper function to count and return number of nodes in the tree
+int WordTree::distinctWords(WordNode* node) const
+{
+	if (node == nullptr) // node is empty, return 0
+		return 0;
+	else // else return 1 (for node) + number of nodes in left and right subtree of node
+		return 1 + distinctWords(node->m_left) + distinctWords(node->m_right);
+}
+
+// Returns the number of distinct words / nodes
+int WordTree::distinctWords() const
+{
+	return distinctWords(root);
+}
+
+// helper function that returns total number of words in the tree
+int WordTree::totalWords(WordNode* node) const
+{
+	if (node == nullptr) // empty node, return 0
+		return 0;
+	else // else return count of this node + total count of all nodes in left and right subtree of node
+		return node->count + totalWords(node->m_left) + totalWords(node->m_right);
+}
+
+// Returns the total number of words inserted, including
+// duplicate values
+int WordTree::totalWords() const
+{
+	return totalWords(root);
+}
+
+// helper function to display the words in the tree in sorted order
+void WordTree::printTree(WordNode* node, std::ostream& out) const
+{
+	if (node != nullptr) // node is not null
+	{
+		printTree(node->m_left, out); // display the nodes in the left subtree of node
+		out << node->m_data << " " << node->count << std::endl; // display the data and count of this node
+		printTree(node->m_right, out); // display the nodes in the right subtree of node
+	}
+}
+
+// Prints the LinkedList
+ostream& operator<<(std::ostream& out, const WordTree& rhs)
+{
+	rhs.printTree(rhs.root, out);
+	return out;
+}
+
+// helper function to delete the nodes of the tree
+void WordTree::destroy(WordNode*& node)
+{
+	if (node != nullptr) // node is not null
+	{
+		destroy(node->m_left); // delete the nodes of left subtree
+		destroy(node->m_right); // delete the nodes of right subtree
+		// delete node
+		delete node;
+		node = nullptr;
+	}
+}
+
+// Destroys all the dynamically allocated memory in the // tree
+WordTree::~WordTree()
+{
+	destroy(root);
+}
+
+bool WordTree::remove(ItemType v) {
+	WordNode* curr = root;
+	WordNode* parent = nullptr;
+	while (curr != nullptr) {
+		if (curr->m_data == v) {
+			if (curr->count > 1) {
+				curr->count--;
+				return true;
+			}
+			if (curr->m_left == nullptr && curr->m_right == nullptr) {
+				if (parent == nullptr) {
+					root = nullptr;
+				}
+				else if (parent->m_left == curr) {
+					parent->m_left = nullptr;
+				}
+				else {
+					parent->m_right = nullptr;
+				}
+				delete curr;
+				return true;
+			}
+			else if (curr->m_left != nullptr && curr->m_right == nullptr) {
+				if (parent == nullptr) {
+					root = curr->m_left;
+				}
+				else if (parent->m_left == curr) {
+					parent->m_left = curr->m_left;
+				}
+				else {
+					parent->m_right = curr->m_left;
+				}
+				delete curr;
+				return true;
+			}
+			else if (curr->m_left == nullptr && curr->m_right != nullptr) {
+				if (parent == nullptr) {
+					root = curr->m_right;
+				}
+				else if (parent->m_left == curr) {
+					parent->m_left = curr->m_right;
+				}
+				else {
+					parent->m_right = curr->m_right;
+				}
+				delete curr;
+				return true;
+			}
+			else {
+				WordNode* minRight = curr->m_right;
+				WordNode* minRightParent = curr;
+				while (minRight->m_left != nullptr) {
+					minRightParent = minRight;
+					minRight = minRight->m_left;
+				}
+				curr->m_data = minRight->m_data;
+				curr->count = minRight->count;
+				if (minRightParent->m_left == minRight) {
+					minRightParent->m_left = minRight->m_right;
+				}
+				else {
+					minRightParent->m_right = minRight->m_right;
+				}
+				delete minRight;
+				return true;
+			}
+		}
+		else if (curr->m_data > v) {
+			parent = curr;
+			curr = curr->m_left;
+		}
+		else {
+			parent = curr;
+			curr = curr->m_right;
+		}
+	}
+	return false;
+}
+
+int main() {
+	WordTree t;
+
+	t.add("Skyler");
+	t.add("Walter");
+	t.add("Walter");
+	t.add("Hank");
+	t.add("Hank");
+	t.add("Jessie");
+	t.add("Gus");
+
+	cout << t;
+	t.remove("Hank");
+	cout << "Removing Hank..." << endl;
+	cout << t;
+	t.remove("Hank");
+	cout << "Removing Hank..." << endl;
+	cout << t;
+}
