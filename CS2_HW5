@@ -1,0 +1,151 @@
+#include <iostream>
+#include <fstream>
+#include <istream>
+#include <cstring>
+using namespace std;
+const int maxResult = 20; // Maximum matches that can be found.
+const int maxdictWord = 30000; // Maximum words that can be read.
+
+int loadWords(istream& dictfile, string dict[]);
+bool findWord(string word, const string dict[], int top, int bot);
+void swap(char& a, char& b);
+void permute(string a, int front, int end, const string dict[], int dict_total, int& matched, string results[]);
+void Loops(string& a, int i, int front, int end, const string dict[], int dict_total, int& matched, string results[]);
+int recBlends(string word, const string dict[], int size, string results[]);
+void showResults(const string results[], int size);
+bool checkWords(int i, int max, string b, string results[]);
+
+
+//Adding all the words from dictfile into array of strings named dict
+int loadWords(istream& dictfile, string dict[]) {
+	string data;
+	if (dictfile.eof()) { // ending of dictfile
+		return 0;
+	}
+
+	dictfile >> data;
+	// using recursion to loop to the ending of dictfile(dict starting with Z)
+	int x = loadWords(dictfile, dict);
+	if (x < maxdictWord) {
+		dict[x] = data;
+		x++;
+		return x;
+	}
+	else
+		return maxdictWord; //reached maximum capacity of an array
+}
+
+//function for checking if a word is in the array dict[] or not
+bool findWord(string word, const string dict[], int top, int bot) {
+	if (top > bot) {
+		return false; // string is not found.
+	}
+	else {
+		int mid = (top + bot) / 2;
+		string check = dict[mid];
+		check[0] = tolower(check[0]); // making all words lowercase
+		if (word.compare(check) == 0) {
+			return true;
+		}
+		else if (word.compare(check) > 0) {
+			return findWord(word, dict, top, mid - 1);
+		}
+		else if (word.compare(check) < 0) {
+			return findWord(word, dict, mid + 1, bot);
+		}
+	}
+	return true;
+}
+
+//function to swap 2 characters in a word
+void swap(char& a, char& b) {
+	char temp = a;
+	a = b;
+	b = temp;
+}
+
+// Function-to-find-all permutations of a word.
+void permute(string a, int front, int end, const string dict[], int dict_total, int& matched, string results[]) {
+	if (front == end) // founded a possible permutation
+	{
+		if (findWord(a, dict, 0, dict_total))// checking if word exists in dictionary
+		{
+			if (!(checkWords(0, matched, a, results)))//checking if word is already present in results
+			{
+				results[matched] = a;
+				matched++;
+			}
+		}
+	}
+	else {
+		Loops(a, front, front, end, dict, dict_total, matched, results);
+	}
+}
+
+void Loops(string& a, int i, int front, int end, const string dict[], int dict_total, int& matched, string results[]) {
+	if (i > end)
+		return;
+	// for all remaining letters [i] this loop continues and permutes all the possible anagrams
+	swap(a[front], a[i]);
+	permute(a, front + 1, end, dict, dict_total, matched, results);
+	//returning back the switch so that the next-loop can swap 2-different-characters
+	swap(a[front], a[i]);
+	//replacing_the for loop by incrementing i in every call until it reaches end or "max"
+	Loops(a, (i + 1), front, end, dict, dict_total, matched, results);
+
+}
+
+//main function used to find the number of anagrams formed from a given string-puts the anagrams in an array called results
+int recBlends(string word, const string dict[], int size, string results[]) {
+	int back = word.size() - 1;
+	int matched = 0;
+	permute(word, 0, back, dict, size, matched, results);
+
+	return matched;
+}
+
+//function Printing all the strings in results
+void showResults(const string results[], int size) {
+	if (size - 1 < 0)
+		return;
+	cout << "Matching word " << results[size - 1] << endl;
+	showResults(results, size - 1);
+
+}
+
+//function checking if a word exists in results already
+bool checkWords(int i, int max, string b, string results[]) {
+	if (i == max)
+		return false;
+	if (b.compare(results[i]) == 0)
+		return true;
+	checkWords(i + 1, max, b, results);
+	return false;
+}
+
+//Main function
+int main() {
+	string results[maxResult];
+	string dict[maxdictWord];
+	ifstream dictfile;
+	int nwords;
+	string word;
+
+	dictfile.open("C:\\Users\\sebas\\OneDrive\\Desktop\\words.txt");
+	if (!dictfile) {
+		cout << "File not found!" << endl;
+		return (1);
+	}
+
+	nwords = loadWords(dictfile, dict);
+
+	cout << "enter a string for an anagram: ";
+	cin >> word;
+
+	int numMatches = recBlends(word, dict, nwords, results);
+	if (!numMatches)
+		cout << "No matches found" << endl;
+	else
+		showResults(results, numMatches);
+	return 0;
+}
