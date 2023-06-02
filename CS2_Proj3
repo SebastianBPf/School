@@ -1,0 +1,842 @@
+//-------------------------------------------------Arena.cpp-------------------------------------------------
+
+#include <iostream>
+#include <string>
+#include "Arena.h"
+#include "Player.h"
+#include "Robot.h"
+
+
+
+//  Arena implementations
+Arena::Arena(int nRows, int nCols)
+{
+    if (nRows <= 0 || nCols <= 0 || nRows > MAXROWS || nCols > MAXCOLS)
+    {
+        std :: cout << "***** Arena created with invalid size " << nRows << " by "
+            << nCols << "!" << std :: endl;
+        exit(1);
+    }
+    m_rows = nRows;
+    m_cols = nCols;
+    m_player = nullptr;
+    m_nRobots = 0;
+}
+
+Arena::~Arena()
+{
+    delete m_player;
+    int i = 0;
+    while (i < m_nRobots)
+    {
+        delete m_robots[i];
+        i++;
+    }
+}
+
+int Arena::rows() const
+{
+    return m_rows; 
+}
+
+int Arena::cols() const
+{
+    return m_cols;
+}
+
+Player* Arena::player() const
+{
+    return m_player;
+}
+
+int Arena::robotCount() const
+{
+    return m_nRobots;
+}
+
+int Arena::nRobotsAt(int r, int c) const
+{
+    int count = 0;
+    int i = 0;
+    
+    while (i != m_nRobots) 
+    {
+        if (m_robots[i]->row() == r && m_robots[i]->col() == c)
+        {
+            count += 1;
+        }
+        i++;
+    }
+    return count;
+}
+
+void Arena::display(std :: string msg) const
+{
+    // Position (row,col) in the arena coordinate system is represented in
+    // the array element grid[row-1][col-1]
+    char grid[MAXROWS][MAXCOLS];
+    int r, c;
+
+    // Fill the grid with dots
+    for (r = 0; r < rows(); r++)
+        for (c = 0; c < cols(); c++)
+            grid[r][c] = '.';
+
+    // Indicate each robot's position
+    for (r = 0; r < rows(); r++)
+    {
+        for (c = 0; c < cols(); c++) {
+            if (nRobotsAt(r + 1, c + 1) == 1)
+            {
+                grid[r][c] = 'R';
+            }
+            else if (nRobotsAt(r + 1, c + 1) > 1 && nRobotsAt(r + 1, c + 1) < 9)
+            {
+                grid[r][c] = '0' + nRobotsAt(r + 1, c + 1);
+            }
+            else if (nRobotsAt(r + 1, c + 1) > 9)
+            {
+                grid[r][c] = '9';
+            }
+        }
+    }
+
+    // Indicate player's position
+    if (m_player != nullptr)
+    {
+        char& gridChar = grid[m_player->row() - 1][m_player->col() - 1];
+        if (gridChar == '.')
+            gridChar = '@';
+        else
+            gridChar = '*';
+    }
+
+    clearScreen();
+    for (r = 0; r < rows(); r++)
+    {
+        for (c = 0; c < cols(); c++)
+            std::cout << grid[r][c];
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+    std::cout << std::endl;
+    if (msg != "")
+        std::cout << msg << std::endl;
+    std::cout << "There are " << robotCount() << " robots remaining." << std::endl;
+    if (m_player == nullptr)
+        std::cout << "There is no player." << std::endl;
+    else
+    {
+        if (m_player->age() > 0)
+            std::cout << "The player has lasted " << m_player->age() << " steps." << std::endl;
+        if (m_player->isDead())
+            std::cout << "The player is dead." << std::endl;
+    }
+}
+
+bool Arena::addRobot(int r, int c)
+{
+    if (m_nRobots == MAXROBOTS)
+    {
+        return false;
+    }
+    else
+    {
+        m_robots[m_nRobots] = new Robot(this, r, c);
+        m_nRobots = m_nRobots + 1;
+        return true;
+    }
+}
+
+bool Arena::addPlayer(int r, int c)
+{
+    if (m_player != nullptr)
+        return false;
+
+    m_player = new Player(this, r, c);
+    return true;
+}
+
+void Arena::damageRobotAt(int r, int c)
+{
+    bool destroystatus = false;
+    int i = 0;
+    while (i < m_nRobots)
+    {
+        if (nRobotsAt(r, c) > 0)
+        {
+            if (m_robots[i]->row() == r && m_robots[i]->col() == c)
+            {
+                destroystatus = m_robots[i]->takeDamageAndLive();
+                break;
+            }
+        }
+        i++;
+    }
+    if (destroystatus == true)
+    {
+        return;
+    }
+    delete m_robots[i];
+    m_robots[i] = m_robots[--m_nRobots];
+}
+
+
+bool Arena::moveRobots()
+{
+    for (int i = 0; i < m_nRobots; i++)
+    {
+        m_robots[i]->move();
+
+        if (m_robots[i]->row() == m_player->row() && m_robots[i]->col() == m_player->col())
+        {
+            m_player->setDead();
+        }
+    }
+    return !m_player->isDead();
+}
+//-------------------------------------------------Arena.h-------------------------------------------------
+#pragma once
+#include <string>
+#include "globals.h"
+#include "Player.h"
+#include "Robot.h"
+
+class Player;
+class Robot;
+
+class Arena
+{
+public:
+    // Constructor/destructor
+    Arena(int nRows, int nCols);
+    ~Arena();
+
+    // Accessors
+    int     rows() const;
+    int     cols() const;
+    Player* player() const;
+    int     robotCount() const;
+    int     nRobotsAt(int r, int c) const;
+    void    display(std::string msg) const;
+
+    // Mutators
+    bool   addRobot(int r, int c);
+    bool   addPlayer(int r, int c);
+    void   damageRobotAt(int r, int c);
+    bool   moveRobots();
+
+private:
+    int     m_rows;
+    int     m_cols;
+    Player* m_player;
+    Robot* m_robots[MAXROBOTS];
+    int     m_nRobots;
+};
+//-------------------------------------------------Game.cpp-------------------------------------------------
+
+#include <iostream>
+#include <string>
+#include "Arena.h"
+#include "Game.h"
+#include "Player.h"
+#include "globals.h"
+
+
+//  Game implementations
+Game::Game(int rows, int cols, int nRobots)
+{
+    if (nRobots > MAXROBOTS)
+    {
+        std::cout << "***** Trying to create Game with " << nRobots
+            << " robots; only " << MAXROBOTS << " are allowed!" << std::endl;
+        exit(1);
+    }
+    // Create arena
+    m_arena = new Arena(rows, cols);
+
+    // Add player
+    int rPlayer = 1 + rand() % rows;
+    int cPlayer = 1 + rand() % cols;
+    m_arena->addPlayer(rPlayer, cPlayer);
+
+    // Populate with robots
+    while (nRobots > 0)
+    {
+        int r = 1 + rand() % rows;
+        int c = 1 + rand() % cols;
+        // Don't put a robot where the player is
+        if (r == rPlayer && c == cPlayer)
+            continue;
+        m_arena->addRobot(r, c);
+        nRobots--;
+    }
+}
+
+Game::~Game()
+{
+    delete m_arena;
+}
+
+void Game::play()
+{
+    Player* p = m_arena->player();
+
+    if (p == nullptr)
+    {
+        m_arena->display("");
+        return;
+    }
+    std::string msg = "";
+    do
+    {
+        m_arena->display(msg);
+        msg = "";
+        std::cout << std::endl;
+        std::cout << "Move (u/d/l/r/su/sd/sl/sr/c//q): ";
+        std::string action;
+        getline(std::cin, action);
+        if (action.size() == 0)
+            p->stand();
+        else
+        {
+            switch (action[0])
+            {
+            default: 
+                std::cout << '\a' << std::endl;  // beep
+                continue;
+            case 'q':
+                return;
+            case 'c':  // computer moves player
+                msg = p->takeComputerChosenTurn();
+                break;
+            case 'u':
+            case 'd':
+            case 'l':
+            case 'r':
+                p->move(decodeDirection(action[0]));
+                break;
+            case 's':
+                if (action.size() < 2)  // if no direction, nobody moves
+                {
+                    std::cout << '\a' << std::endl;  // beep
+                    continue;
+                }
+                switch (action[1])
+                {
+                default:   // if bad direction, nobody moves
+                    std::cout << '\a' << std::endl;  // beep
+                    continue;
+                case 'u':
+                case 'd':
+                case 'l':
+                case 'r':
+                    if (p->shoot(decodeDirection(action[1])))
+                        msg = "Hit!";
+                    else
+                        msg = "Missed!";
+                    break;
+                }
+                break;
+            }
+        }
+        m_arena->moveRobots();
+    } while (!m_arena->player()->isDead() && m_arena->robotCount() > 0);
+    m_arena->display(msg);
+}
+//-------------------------------------------------Game.h-------------------------------------------------
+#pragma once
+class Arena;
+
+class Game
+{
+public:
+    // Constructor/destructor
+    Game(int rows, int cols, int nRobots);
+    ~Game();
+
+    // Mutators
+    void play();
+
+private:
+    Arena* m_arena;
+};
+//-------------------------------------------------globals.h-------------------------------------------------
+#pragma once
+
+
+// Manifest constants
+const int MAXROWS = 20;             
+const int MAXCOLS = 40;         
+const int MAXROBOTS = 130;         
+const int MAXSHOTLEN = 5;           
+
+const int UP = 0;
+const int DOWN = 1;
+const int LEFT = 2;
+const int RIGHT = 3;
+
+//  Auxiliary function declarations
+int decodeDirection(char dir);
+void clearScreen();
+//-------------------------------------------------main.cpp-------------------------------------------------
+#include <cassert>
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+#include "Game.h"
+#include "Robot.h"
+#include "Arena.h"
+#include "globals.h"
+#include "Player.h"
+using namespace std;
+
+
+int main()
+{
+    srand(static_cast<unsigned int>(time(0)));
+    Game g(15, 18, 80);
+  
+    g.play();
+
+    return 0;
+}
+//-------------------------------------------------Player.cpp-------------------------------------------------
+#include <iostream>
+#include <string>
+#include "globals.h"
+#include "Player.h"
+#include "Arena.h"
+
+
+
+Player::Player(Arena* ap, int r, int c)
+{
+    if (ap == nullptr)
+    {
+        std :: cout << "***** The player must be in some Arena!" << std::endl;
+        exit(1);
+    }
+    if (r < 1 || r > ap->rows() || c < 1 || c > ap->cols())
+    {
+        std:: cout << "**** Player created with invalid coordinates (" << r
+            << "," << c << ")!" << std:: endl;
+        exit(1);
+    }
+    m_arena = ap;
+    m_row = r;
+    m_col = c;
+    m_age = 0;
+    m_dead = false;
+}
+
+int Player::row() const
+{
+    return m_row;
+}
+
+int Player::col() const
+{
+    return m_col;
+}
+
+int Player::age() const
+{
+    return m_age; 
+}
+
+std :: string Player::takeComputerChosenTurn()
+{
+    if (m_arena->nRobotsAt(m_row, m_col + 1) == 0 && m_arena->nRobotsAt(m_row, m_col - 1) == 0 && m_arena->nRobotsAt(m_row + 1, m_col) == 0 && m_arena->nRobotsAt(m_row - 1, m_col) == 0)
+    {
+        if (m_arena->nRobotsAt(m_row, m_col + 2) > 0 || m_arena->nRobotsAt(m_row, m_col - 2) > 0 || m_arena->nRobotsAt(m_row + 2, m_col) > 0 || m_arena->nRobotsAt(m_row - 2, m_col) > 0)
+        {
+            if (m_arena->nRobotsAt(m_row, m_col + 2) > 0)
+            {
+                bool status = shoot(RIGHT);
+                if (status == true)
+                {
+                    return "Shot and hit!";
+                }
+                else
+                {
+                    return "Shot and missed!";
+                }
+            }
+            if (m_arena->nRobotsAt(m_row, m_col - 2) > 0) 
+            {
+                bool status = shoot(LEFT);
+                if (status == true)
+                {
+                    return "Shot and hit!";
+                }
+                else
+                {
+                    return "Shot and missed!";
+                }
+            }
+            if (m_arena->nRobotsAt(m_row + 2, m_col) > 0) 
+            {
+                bool status = shoot(DOWN);
+                if (status == true)
+                {
+                    return "Shot and hit!";
+                }
+                else
+                {
+                    return "Shot and missed!";
+                }
+            }
+            if (m_arena->nRobotsAt(m_row - 2, m_col) > 0) 
+            {
+                bool status = shoot(UP);
+                if (status == true)
+                {
+                    return "Shot and hit!";
+                }
+                else
+                {
+                    return "Shot and missed!";
+                }
+            }
+        }
+        else
+        {
+            stand();
+            return "Stood.";
+        }
+    }
+    else
+    {
+        if (m_arena->nRobotsAt(m_row + 1, m_col) == 0)
+        {
+            move(DOWN);
+            return "Moved.";
+        }
+        else if (m_arena->nRobotsAt(m_row - 1, m_col) == 0) 
+        {
+            move(UP);
+            return "Moved.";
+        }
+        else if (m_arena->nRobotsAt(m_row, m_col + 1) == 0)
+        {
+            move(RIGHT);
+            return "Moved.";
+        }
+        else if (m_arena->nRobotsAt(m_row, m_col - 1) == 0) 
+        {
+            move(LEFT);
+            return "Moved.";
+        }
+    }
+    stand();
+    return "Stood.";
+
+}
+
+void Player::stand()
+{
+    m_age++;
+}
+
+void Player::move(int dir)
+{
+    switch (dir)
+    {
+    case UP:
+        if (m_row > 1 && m_row <= m_arena->rows())
+        {
+            m_row -= 1;
+            m_age++;
+        }
+        stand();
+        break;
+    case DOWN:
+        if (m_row >= 1 && m_row < m_arena->rows())
+        {
+            m_row += 1;
+            m_age++;
+        }
+        stand();
+        break;
+    case LEFT:
+        if (m_col > 1 && m_col <= m_arena->cols())
+        {
+            m_col -= 1;
+            m_age++;
+        }
+        stand();
+        break;
+    case RIGHT:
+        if (m_col >= 1 && m_col < m_arena->cols())
+        {
+            m_col += 1;
+            m_age++;
+        }
+        stand();
+        break;
+    }
+}
+
+bool Player::shoot(int dir)
+{
+    m_age++;
+
+    if (rand() % 3 == 0)
+    {
+        return false;
+    }
+    else if (dir == UP)
+    {
+        int i = 0;
+        while (i < MAXSHOTLEN + 1)
+        {
+            if (m_arena->nRobotsAt(m_row - i, m_col) > 0 && m_row - i > 0)
+            {
+                m_arena->damageRobotAt(m_row - i, m_col);
+                return true;
+            }
+            i++;
+        }
+    }
+    else if (dir == DOWN)
+    {
+        int i = 0;
+        while (i < MAXSHOTLEN + 1)
+        {
+            if (m_arena->nRobotsAt(m_row + i, m_col) > 0 && m_row - i > 0)
+            {
+                m_arena->damageRobotAt(m_row + i, m_col);
+                return true;
+            }
+            i++;
+        }
+    }
+    else if (dir == LEFT)
+    {
+        int i = 0;
+        while (i < MAXSHOTLEN + 1)
+        {
+            if (m_arena->nRobotsAt(m_row, m_col - i) > 0 && m_col - i > 0)
+            {
+                m_arena->damageRobotAt(m_row, m_col - i);
+                return true;
+            }
+            i++;
+        }
+    }
+    else if (dir == RIGHT)
+    {
+        int i = 0;
+        while (i < MAXSHOTLEN + 1)
+        {
+            if (m_arena->nRobotsAt(m_row, m_col + i) > 0 && m_col + i > 0)
+            {
+                m_arena->damageRobotAt(m_row, m_col + i);
+                return true;
+            }
+            i++;
+        }
+    }
+    return false;
+}
+
+bool Player::isDead() const
+{
+    return m_dead;
+}
+
+void Player::setDead()
+{
+    m_dead = true;
+}
+//-------------------------------------------------Player.h-------------------------------------------------
+#pragma once
+#include <string>
+
+class Arena;
+
+class Player
+{
+public:
+    Player(Arena* ap, int r, int c);
+
+    int  row() const;
+    int  col() const;
+    int  age() const;
+    bool isDead() const;
+
+    std :: string takeComputerChosenTurn();
+    void   stand();
+    void   move(int dir);
+    bool   shoot(int dir);
+    void   setDead();
+
+private:
+    Arena* m_arena;
+    int    m_row;
+    int    m_col;
+    int    m_age;
+    bool   m_dead;
+};
+//-------------------------------------------------Robot.cpp-------------------------------------------------
+#include <iostream>
+#include <cmath>
+#include "Robot.h"
+#include "Arena.h"
+#include "globals.h"
+
+Robot::Robot(Arena* ap, int r, int c)
+{
+    if (ap == nullptr)
+    {
+        std::cout << "***** A robot must be in some Arena!" << std::endl;
+        exit(1);
+    }
+    if (r < 1 || r > ap->rows() || c < 1 || c > ap->cols())
+    {
+        std :: cout << "***** Robot created with invalid coordinates (" << r << ","
+            << c << ")!" << std :: endl;
+        exit(1);
+    }
+    m_arena = ap;
+    m_row = r;
+    m_col = c;
+    m_health = 2; 
+}
+
+int Robot::row() const
+{
+    return m_row;
+}
+
+int Robot::col() const
+{
+    return m_col;
+}
+
+void Robot::move()
+{
+    switch (rand() % 4)
+    {
+    case UP:
+        if (m_row > 1 && m_row < m_arena->rows())
+        {
+            m_row -= 1;
+        }
+        break;
+    case DOWN:
+        if (m_row > 0 && m_row < m_arena->rows())
+        {
+            m_row += 1;
+        }
+        break;
+    case LEFT:
+        if (m_col > 1 && m_col < m_arena->cols())
+        {
+            m_col -= 1;
+        }
+        break;
+    case RIGHT:
+        if (m_col > 0 && m_col < m_arena->cols())
+        {
+            m_col += 1;
+        }
+        break;
+    }
+}
+
+bool Robot::takeDamageAndLive()
+{
+    m_health -= 1;
+    if (m_health == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+//-------------------------------------------------Robot.h-------------------------------------------------
+#pragma once
+
+class Arena; 
+
+class Robot
+{
+public:
+    // Constructor
+    Robot(Arena* ap, int r, int c);
+
+    // Accessors
+    int  row() const;
+    int  col() const;
+
+    // Mutators
+    void move();
+    bool takeDamageAndLive();
+
+private:
+    Arena* m_arena;
+    int    m_row;
+    int    m_col;
+    int    m_health;
+};
+//-------------------------------------------------utilities.cpp-------------------------------------------------
+#include "globals.h"
+
+
+//  Auxiliary function implementations
+int decodeDirection(char dir)
+{
+    switch (dir)
+    {
+    case 'u':  return UP;
+    case 'd':  return DOWN;
+    case 'l':  return LEFT;
+    case 'r':  return RIGHT;
+    }
+    return -1;  // bad argument passed in!
+}
+
+
+// DO NOT MODIFY OR REMOVE ANY CODE BETWEEN HERE AND THE END OF THE FILE!!!
+// THE CODE IS SUITABLE FOR VISUAL C++, XCODE, AND g++ UNDER LINUX.
+
+#ifdef _MSC_VER  //  Microsoft Visual C++
+
+#include <windows.h>
+
+void clearScreen()
+{
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    DWORD dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
+    COORD upperLeft = { 0, 0 };
+    DWORD dwCharsWritten;
+    FillConsoleOutputCharacter(hConsole, TCHAR(' '), dwConSize, upperLeft,
+        &dwCharsWritten);
+    SetConsoleCursorPosition(hConsole, upperLeft);
+}
+
+#else  // not Microsoft Visual C++, so assume UNIX interface
+
+#include <cstring>
+#include <iostream>
+
+void clearScreen()  // will just write a newline in an Xcode output window
+{
+    static const char* term = getenv("TERM");
+    if (term == nullptr || strcmp(term, "dumb") == 0)
+        std::cout << std::endl;
+    else
+    {
+        static const char* ESC_SEQ = "\x1B[";  // ANSI Terminal esc seq:  ESC [
+        std::cout << ESC_SEQ << "2J" << ESC_SEQ << "H" << std::flush;
+    }
+}
+
+#endif
