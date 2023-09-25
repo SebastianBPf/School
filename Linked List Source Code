@@ -1,0 +1,210 @@
+
+
+Fall 2023 El Camino College Data Structures and Algorithms 
+
+#include <iostream>
+
+using namespace std;
+
+struct Node
+{
+    string value;
+    Node *next;
+
+    ~Node() {
+        cout << "Deleting " << value << endl;
+    }
+};
+
+// Implement the class methods
+class LinkedList {
+    
+    public:
+        LinkedList() {
+            head = nullptr;
+        }
+
+        ~LinkedList() {
+            deleteList(head);
+        }
+
+        void addInOrder(string val) {
+            if (nullptr == head) {
+                addToFront(val);
+            }
+            else if (val < head->value) {
+                // new head, insert at front
+                addToFront(val);
+            }
+            else {
+                Node *newNode = new Node;
+                newNode->value = val;
+                newNode->next = nullptr;
+
+                Node *current = head;
+                while (current->next != nullptr) {
+                    if (val < current->next->value)  // insert here
+                    {
+                        newNode->next = current->next;
+                        current->next = newNode;
+                        return;
+                    }
+
+                    current = current->next;
+                }
+
+                // If we've reached here, we are at the end of the list
+                // current is pointing at the last node
+                current->next = newNode;  // Add newNode to the end
+            }
+        }
+
+        void addToFront(string val) {
+            // Allocate and set the new node's value
+            Node *toAdd = new Node;
+            toAdd->value = val;
+            toAdd->next = nullptr;
+
+            if (head == nullptr) {  // List is empty, simply update head to point to our new node
+                head = toAdd;
+            }
+            else {
+                toAdd->next = head;  // List was not empty, update new node's next to to front of the list
+                head = toAdd;        //  Set the new front of the list to our new node
+            }
+        }
+
+        void deleteItem(string value) {
+            if (head == nullptr) {
+                cout << "Empty list, nothing to do\n";
+                return;  // empty list, nothing to do
+            }
+
+            if(head->value == value) {
+                cout << "Found " << value << " at the head.  Deleting it\n";
+                Node *tmp = head;
+                head = head->next;
+                delete tmp;
+            } 
+            else {
+                Node *current = head;
+                while( current->next != nullptr) {
+                    if(current->next->value == value) {
+                        Node *tmp = current->next;
+                        current->next = current->next->next;
+                        delete tmp;
+                    }
+                    else {
+                        current = current->next;
+                    }
+                }
+            }
+        }
+
+        bool findItem(string toFind) {
+ 
+            // This is the name node navigation through the list that we used for print
+            // Just using a for loop this time
+            for(Node *current = head; current != nullptr; current = current->next) {
+                if(current->value == toFind) {
+                    return true;  // We found the value we were searching for
+                }        
+            }
+            return false;     // We never found the value
+        }
+
+        void addToRear(string value) {   
+            if (nullptr == head) {
+                addToFront(value);
+            }
+            else {
+                // addToRear(head, value); // Recursive version
+
+                Node *current = head;
+                // Find the last node in the list
+                while( current->next != nullptr ) {
+                    current = current->next;
+                }
+                // Reach here, current is pointing at the last node in the list
+                // Create and add the new node to the end
+                Node *newNode = new Node;
+                newNode->next = nullptr;
+                newNode->value = value;
+                current->next = newNode;
+            }
+        }
+
+        void printItems() {
+            if(head == nullptr) {
+                cout << "The list is empty\n";
+            }
+
+            Node *current = head;
+            while(current != nullptr) {
+                cout << current->value << endl;
+                current = current->next;
+            }
+        }
+
+    private:
+        Node *head;
+
+       // Helper fuctions
+
+        void deleteList(Node *start) {
+            if (start == nullptr) {
+                return;
+            }
+            if (nullptr == start->next) {
+                delete start;
+            }
+            else {
+                deleteList(start->next);
+                delete start;
+            }
+        }
+
+        void addToRear(Node *start, string value) {
+
+            if (start->next == nullptr) {  // Base case
+               // cout<<"In base case adding " << value << " to node " << start->value << endl; 
+                Node *newNode = new Node;
+                newNode->next = nullptr;
+                newNode->value = value;
+                start->next = newNode;
+            }
+            else {
+                //cout<<"Calling again " << value << " to node " << start->value << endl;
+                addToRear(start->next, value);  // Recursion
+            }
+        }        
+};
+
+int main() 
+{
+    LinkedList myList;
+    // Test all of the methods
+/*
+    myList.addToRear("Lion");
+    myList.addToFront("Mouse");
+    myList.addToFront("Cat");
+    myList.addToFront("Dog");
+    myList.addToRear("Flea");
+    myList.addToRear("blood");
+*/
+  //  cout << "Does list have Dog? " << myList.findItem("Dog")<< endl;
+  //  cout << "Does list have Mouse? " << myList.findItem("Mouse")<< endl;
+  //  cout << "Does list have Elephant? " << myList.findItem("Elephant")<< endl;
+
+    myList.addInOrder("Dog");
+    myList.addInOrder("Cat");
+    myList.addInOrder("Horse");
+    myList.addInOrder("Elephant");
+    myList.printItems();
+
+  //  myList.deleteItem("Cat");
+
+//    myList.printItems();
+    
+    return 0;
+}
