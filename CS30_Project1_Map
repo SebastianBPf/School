@@ -1,0 +1,352 @@
+---------------------------------------------- Map.cpp ------------------------------------------------
+#include "Test.h"
+#include "Map.h"
+using namespace std;
+
+
+    Node::Node(KeyType k, ValueType v, Node* n, Node* p) {
+        key = k;
+        value = v;
+        next = n;
+        prev = p;
+    }
+
+    Map::Map() { // Create an empty map (i.e., one with no key/value pairs)
+        head = nullptr;
+        tail = nullptr;
+        numElements = 0;
+    }
+
+
+    bool Map::empty() const { // Return true if the map is empty, otherwise false. 
+        if (head == nullptr) { //check if the linked list is empty
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    int Map::size() const {   // Return the number of key/value pairs in the map.
+        return numElements;
+    }
+
+    bool Map::insert(const KeyType& key, const ValueType& value) {
+
+        Node* current = head;
+        while (current != nullptr) {
+            if (current->key == key)        //if the key exists, return false 
+                return false;
+            current = current->next;
+        }
+        
+        Node* newNode = new Node(key, value); //since the key does not exist create new node
+
+        //if the linked list is empty set the head to newNode
+        if (head == nullptr) {
+            head = newNode;
+            tail = newNode;
+        }
+        else { //otherwise insert at end 
+            tail->next = newNode;
+            newNode->prev = tail;
+            tail = newNode;
+        }
+
+        numElements++;
+        return true; 
+
+    }
+    // If key is not equal to any key currently in the map, and if the
+    // key/value pair can be added to the map, then do so and return true.
+    // Otherwise, make no change to the map and return false (indicating
+    // that either the key is already in the map).
+
+    bool Map::update(const KeyType& key, const ValueType& value) {
+        Node* current = head;
+
+        while (current != nullptr) { //go through the list until the end
+            if (current->key == key) { //check if the key matches what we are looking for 
+                current->value = value; //update the value
+                return true;
+            }
+            current = current->next; //if the matching key is not found yet, traverse to the next node
+        }
+
+        return false; //return false if there was node found with a matching key
+    }
+
+
+    // If key is equal to a key currently in the map, then make that key no
+    // longer map to the value it currently maps to, but instead map to
+    // the value of the second parameter; return true in this case.
+    // Otherwise, make no change to the map and return false.
+
+    bool Map::insertOrUpdate(const KeyType& key, const ValueType& value) {
+        Node* current = head;
+
+        if (head == nullptr) {      //check if the list is empty
+            head = new Node(key, value);
+            tail = head;
+            numElements++;
+            return true;
+        }
+
+        while (current != nullptr) {
+            if(current->key == key) { //check if the key matches what we are looking for 
+                current->value = value; //update the value
+                return true;
+            }
+            current = current->next;
+        }
+
+        Node* newNode = new Node(key, value); //since the key does not exist create new node
+
+        //if the linked list is empty set the head to newNode
+        if (head == nullptr) {
+            head = newNode;
+        }
+        else {
+            current = head;
+            while (current->next != nullptr) {
+                current = current->next;
+            }
+            current->next = newNode;
+        }
+        numElements++;
+
+        return true;
+    }
+
+    // If key is equal to a key currently in the map, then make that key no
+    // longer map to the value it currently maps to, but instead map to
+    // the value of the second parameter; return true in this case.
+    // If key is not equal to any key currently in the map then add it and 
+    // return true. In fact this function always returns true.
+
+    bool Map::erase(const KeyType& key) {
+        if (head == nullptr) {      //check if the list is already empty
+            return false;
+        }
+
+        Node* current = head;
+        while (current != nullptr) { //iterate through the list
+            if (current->key == key) { //find the key we are looking for
+                if (current == head) { //if current is the head of the list
+                    head = current->next; 
+                }
+                if (head != nullptr) {
+                    head->prev = nullptr;
+                }
+                else if (current == tail) { //if the node is at the tail of the list
+                    tail = current->prev;
+                    tail->next = nullptr;
+                }
+                else { //if the node is anything but the head or the tail
+                    current->prev->next = current->next;
+                    current->next->prev = current->prev;
+                }
+
+                if (head == nullptr) {
+                    tail = nullptr;
+                }
+
+                delete current;
+                numElements--;
+
+                return true;
+                
+            }
+            current = current->next;
+        }
+        return false;
+    }
+    // If key is equal to a key currently in the map, remove the key/value
+    // pair with that key from the map and return true.  Otherwise, make
+    // no change to the map and return false.
+
+    bool Map::contains(const KeyType& key) const {
+        Node* current = head;
+        while (current != nullptr) {
+            if (current->key == key) {
+                return true;
+            }
+            current = current->next;
+        }
+        return false;
+    }
+    // Return true if key is equal to a key currently in the map, otherwise
+    // false.
+
+    bool Map::get(const KeyType& key, ValueType& value) const {
+        Node* current = head;
+        while (current != nullptr) {
+            if (current->key == key) {
+                value = current->value;
+                return true;
+            }
+            current = current->next;
+        }
+        return false;
+    }
+    // If key is equal to a key currently in the map, set value to the
+    // value in the map that that key maps to, and return true.  Otherwise,
+    // make no change to the value parameter of this function and return
+    // false.
+
+    bool Map::get(int i, KeyType& key, ValueType& value) const {
+        /*if (i < 0 || i >= numElements) { //check to see if it is out of bounds
+            return false;
+        }*/
+
+        Node* current = head;
+        for (int index = 0; current != nullptr && index < i; ++index) {
+            current = current->next;
+        }
+        if (current != nullptr) {
+            key = current->key;
+            value = current->value;
+            return true;
+        }
+    }
+    // If 0 <= i < size(), copy into the key and value parameters the
+    // key and value of one of the key/value pairs in the map and return
+    // true.  Otherwise, leave the key and value parameters unchanged and
+    // return false.  (See below for details about this function.)
+
+    void Map::swap(Map& other) {
+        Node* temp = head;
+        head = other.head;
+        other.head = temp;
+
+        Node* temp2 = tail;
+        tail = other.tail;
+        other.tail = temp2;
+
+        int temp3 = numElements;
+        numElements = other.numElements;
+        other.numElements = temp3;
+    }
+    // Exchange the contents of this map with the other one.
+
+
+    void subtract(const Map& m1, const Map& m2, Map& result)
+    {
+        // does nothing; not correct, but at least this compiles
+    }
+
+    bool combine(const Map& m1, const Map& m2, Map& result) {
+        Map tempResult; // Temporary result map
+        bool noConflict = true; // To track if there's a conflict
+
+        KeyType key;
+        ValueType valueM1, valueM2;
+
+        // Loop through m1 and add all entries to tempResult
+        for (int i = 0; i < m1.size(); i++) {
+            m1.get(i, key, valueM1);
+            tempResult.insertOrUpdate(key, valueM1);
+        }
+
+        // Loop through m2 to combine with tempResult
+        for (int i = 0; i < m2.size(); i++) {
+            m2.get(i, key, valueM2);
+
+            // If m2's key is also in m1 (and thus in tempResult)
+            if (tempResult.get(key, valueM1)) {
+                // If the same key has different values in m1 and m2, it's a conflict
+                if (valueM1 != valueM2) {
+                    tempResult.erase(key); 
+                    noConflict = false; 
+                }
+            } else {
+                // If the key is only in m2, add it to tempResult
+                tempResult.insertOrUpdate(key, valueM2);
+            }
+        }
+
+        // Swap the contents of result with tempResult to finalize the combination
+        result.swap(tempResult);
+
+        return noConflict;
+    }
+
+
+
+
+---------------------------------------------- Map.h ------------------------------------------------
+#ifndef MAP_H
+#define MAP_H
+
+#include <iostream>
+#include <string> 
+#include <cassert>
+
+using KeyType = int;
+using ValueType = std::string;
+
+struct Node {
+    KeyType key;
+    ValueType value;
+    Node* next;
+    Node* prev;
+
+    Node(KeyType k, ValueType v, Node* n = nullptr, Node* p = nullptr);
+};
+
+class Map
+{
+private:
+    Node* head;
+    Node* tail;
+    int numElements;
+
+public:
+    Map();
+    bool empty() const;
+    int size() const;
+    bool insert(const KeyType& key, const ValueType& value);
+    bool update(const KeyType& key, const ValueType& value);
+    bool insertOrUpdate(const KeyType& key, const ValueType& value);
+    bool erase(const KeyType& key);
+    bool contains(const KeyType& key) const;
+    bool get(const KeyType& key, ValueType& value) const;
+    bool get(int i, KeyType& key, ValueType& value) const;
+    void swap(Map& other);
+
+
+};
+
+
+
+
+#endif
+---------------------------------------------- Test.h ------------------------------------------------
+#include "Map.h"
+#include <string>
+#include <iostream>
+#include <cassert>
+using namespace std;
+
+void test()
+{
+    Map m;
+    assert(m.insert(123, "Fred"));
+    assert(m.insert(456, "Ethel"));
+    assert(m.size() == 2);
+    string s;
+    assert(m.get(123, s) && s == "Fred");
+    s = "";
+    int i1;
+    assert(m.get(0, i1, s) &&
+        ((i1 == 123 && s == "Fred") || (i1 == 456 && s == "Ethel")));
+    int i2;
+    assert(m.get(1, i2, s) && i1 != i2 &&
+        ((i2 == 123 && s == "Fred") || (i2 == 456 && s == "Ethel")));
+}
+
+int main()
+{
+    test();
+    cout << "Passed all tests" << endl;
+}
