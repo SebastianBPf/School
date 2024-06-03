@@ -1,8 +1,8 @@
-----------------------------------StudentWorld.cpp----------------------------------
-
+----------StudentWorld.cpp----------
 #include "StudentWorld.h"
 #include <string>
 #include <iostream>
+#include <vector>
 //#include "GameConstants.h"
 using namespace std;
 
@@ -17,16 +17,25 @@ GameWorld* createStudentWorld(string assetDir)
 
 int StudentWorld::init()
 {
-	
 
-	//creates ice field
+	//m_Actors.push_back(m_RegularProtestor);
+	//m_Actors.push_back(m_HardcoreProtestor);
+	//m_Actors.push_back(m_OilBarrel);
+	//m_Actors.push_back(m_SonarKit);
+	//m_Actors.push_back(m_WaterRefill);
+	//m_Actors.push_back(Boulder);
+	//m_Actors.push_back(Squirt);
+
+
+
+	// Ice Field Creation
 	for (int i = 0; i < VIEW_WIDTH; i++)
 	{
 		for (int j = 0; j < VIEW_HEIGHT; j++)
 		{
 			if (!(i >= 30 && i <= 33 && j >= 4 && j <= 64))
 			{
-				IceGrid[i][j] = new Ice(i, j);
+				IceGrid[i][j] = new Ice(i, j, this);
 			}
 			else
 			{
@@ -35,33 +44,55 @@ int StudentWorld::init()
 		}
 	}
 
-	//cout << "please work"; // prints to console
+	//Ice Man Constructor
+	m_IceMan.push_back(new Iceman(30, 60, this));
+	m_Actors.push_back(m_IceMan);
 
-	//temp object creator
-	Iceman* m_iceMan = new Iceman(30, 60);
-	RegularProtester* regularprotester = new RegularProtester(60, 65);
-	HardcoreProtester* hardcoreprotester = new HardcoreProtester(0, 65);
-	OilBarrel* oilBarrel = new OilBarrel(35, 35);
-	GoldNugget* goldNugget = new GoldNugget(25, 25);
-	SonarKit* sonarKit = new SonarKit(15, 15);
-	WaterRefill* waterRefill = new WaterRefill(45, 45);
-	Boulder* boulder = new Boulder(55, 55);
-	Squirt* squirt = new Squirt(25, 55);
+	// Constructors for:
+	// Regular/Hardcore Protestor, OilBarrel, GoldNugget, SonarKit, WaterFill, Boulder, Squirt
+	
+
+
+	//RegularProtester* regularprotester = new RegularProtester(60, 65);
+	//HardcoreProtester* hardcoreprotester = new HardcoreProtester(0, 65);
+	//OilBarrel* oilBarrel = new OilBarrel(35, 35);
+	//GoldNugget* goldNugget = new GoldNugget(25, 25);
+	//SonarKit* sonarKit = new SonarKit(15, 15);
+	//WaterRefill* waterRefill = new WaterRefill(45, 45);
+	//Boulder* boulder = new Boulder(55, 55);
+	//Squirt* squirt = new Squirt(25, 55);
 
 	return GWSTATUS_CONTINUE_GAME;
-	//return GWSTATUS_PLAYER_DIED;
 
 }
 
 int StudentWorld::move()
 {
-	
 	//updateDisplayText();
-	cout << "move test";
-	// This code is here merely to allow the game to build, run, and terminate after you hit enter a few times.
-	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
+	//Seb is working on this
+
+	//Give each Actor a chance to doSomething
+	for (int i = 0; i < m_Actors.size(); i++)
+	{
+		double XcoordChecker = 0;
+		double YcoordChecker = 0;
+		for (int j = 0; j < m_Actors[i].size(); j++)
+		{
+			if (m_Actors[i][j] != nullptr)
+			{
+				m_Actors[i][j]->doSomething();
+				m_Actors[i][j]->getAnimationLocation(XcoordChecker, YcoordChecker);
+				std::cout << XcoordChecker << "--" << YcoordChecker << std::endl;
+			}
+
+		}
+		for (int k = 0; k < sizeof(IceGrid[k]); k++)
+		{
+			std::cout << "PRINTING ICE TEST" << std::endl;
+		}
+	}
+
 	decLives();
-	//return GWSTATUS_PLAYER_DIED;
 	return GWSTATUS_CONTINUE_GAME;
 
 }
@@ -80,11 +111,23 @@ void StudentWorld::cleanUp()
 			IceGrid[i][j] = nullptr;
 		}
 	}
+	for (int i = 0; i < m_Actors.size(); i++)
+	{
+		for (int j = 0; j < m_Actors[i].size(); j++)
+		{
+			if (m_Actors[i][j] != nullptr)
+			{
+				delete m_Actors[i][j];
+				m_Actors[i][j] = nullptr;
+			}
+		}
+	}
 
 
 }
 
-----------------------------------StudentWorld.h----------------------------------
+----------StudentWorld.h----------
+
 #ifndef STUDENTWORLD_H_
 #define STUDENTWORLD_H_
 
@@ -106,23 +149,33 @@ public:
 		: GameWorld(assetDir)
 	{
 	}
-	
+
 	virtual int init();
 	virtual int move();
 	virtual void cleanUp();
-	
+
 
 private:
+	//Member Functions
+
+	//Data Members
 	Ice* IceGrid[VIEW_WIDTH][VIEW_HEIGHT];
-	//Iceman* m_iceman;
+	std::vector<std::vector<Actor*>>m_Actors;
+	std::vector<Actor*>m_IceMan;
+	std::vector<Actor*>m_RegularProtestor;
+	std::vector<Actor*>m_HardcoreProtestor;
+	std::vector<Actor*>m_OilBarrel;
+	std::vector<Actor*>m_SonarKit;
+	std::vector<Actor*>m_WaterRefill;
+	std::vector<Actor*>Boulder;
+	std::vector<Actor*>Squirt;
+
 };
 
 
 #endif // STUDENTWORLD_H_
 
-
-----------------------------------Actor.cpp----------------------------------
-
+----------Actor.cpp----------
 #include "Actor.h"
 #include "StudentWorld.h"
 
@@ -131,12 +184,16 @@ private:
 //void RegularProtester::doSomething() {
 //
 //}
-----------------------------------Actor.h----------------------------------
+
+----------Actor.h----------
 #ifndef ACTOR_H_
 #define ACTOR_H_
 
 #include "GraphObject.h"
+#include <iostream>
 //#include "StudentWorld.cpp"
+
+class StudentWorld;
 
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
@@ -144,21 +201,28 @@ private:
 class Actor : public GraphObject
 {
 public:
-    Actor(int imageID, int startX, int startY, Direction startDirection, float size, unsigned int depth)
-        : GraphObject(imageID, startX, startY, startDirection, size, depth)
+    // Pure virtual function to be overriden
+    virtual void doSomething() const = 0;
+
+    // Contructors for Items/Goodies
+    Actor(int imageID, int startX, int startY, Direction startDirection, float size, unsigned int depth, StudentWorld* ptr)
+        : GraphObject(imageID, startX, startY, startDirection, size, depth), m_x(startX), m_y(startY), s_ptr(ptr)
     {
         setVisible(true);
     }
-    Actor(int imageID, int startX, int startY, Direction startDirection, float size, unsigned int depth, int hitPoints, int waterToSquirt, int sonarCharge, int goldNuggets)
-        : GraphObject(imageID, startX, startY, startDirection, size, depth) 
+
+    // Contructors for IceMan Object
+    Actor(int imageID, int startX, int startY, Direction startDirection, float size, unsigned int depth, StudentWorld* ptr, int hitPoints, int waterToSquirt, int sonarCharge, int goldNuggets)
+        : GraphObject(imageID, startX, startY, startDirection, size, depth), m_x(startX), m_y(startY), s_ptr(ptr)
     {
         setVisible(true);
     }
+
+    // Getting Access to StudentWorld for actors
     
 
-    //virtual void doSomething() = 0;  // Pure virtual function to be overridden by derived classes
     virtual ~Actor() {}
-
+    StudentWorld* s_ptr;
 private:
 
 };
@@ -166,9 +230,13 @@ private:
 class Ice : public Actor
 {
 public:
-	Ice(int startX, int startY) : Actor(IID_ICE, startX, startY, right, 0.25, 3){}
-
+    Ice(int startX, int startY, StudentWorld* ptr) : Actor(IID_ICE, startX, startY, right, 0.25, 3, ptr)  {}
     
+    void doSomething() const override
+    {
+        
+    }
+
 private:
 
 };
@@ -176,10 +244,35 @@ private:
 class Iceman : public Actor
 {
 public:
-    Iceman(int startX, int startY)
-        : Actor(IID_PLAYER, startX, startY, right, 1.0, 0 , m_hitPoints = 10, m_waterToSquirt = 5, m_sonarCharge = 1, m_goldNuggets = 0){}
-    //virtual void doSomething() override;
-    // getLives(m_hitPoints);
+    Iceman(int startX, int startY, StudentWorld* ptr)
+        : Actor(IID_PLAYER, startX, startY, right, 1.0, 0, ptr, m_hitPoints = 10, m_waterToSquirt = 5, m_sonarCharge = 1, m_goldNuggets = 0) {}
+
+    void doSomething() const override
+    {
+        std::cout << "TEST CASE 1" << std::endl;
+        if (m_hitPoints < 1)
+            return;
+        //Move Iceman
+        int ch;
+        if (s_ptr->getKey(ch) == true)
+        {
+            switch (ch)
+            {
+            case KEY_PRESS_LEFT:
+                this->moveTo(getX() - 1, getY());
+                break;
+            case KEY_PRESS_RIGHT:
+                moveTo(getX() + 1, getY());
+                break;
+            case KEY_PRESS_DOWN:
+                moveTo(getX(), getY() - 1);
+                break;
+            case KEY_PRESS_UP:
+                moveTo(getX(), getY() + 1);
+                break;
+            }
+        }
+    }
 private:
     int m_hitPoints;
     int m_waterToSquirt;
@@ -187,74 +280,74 @@ private:
     int m_goldNuggets;
 };
 
-class Squirt : public Actor {
-public:
-    Squirt(int startX, int startY) : Actor(IID_WATER_SPURT, startX, startY, down, 1.0, 1) {}
-};
-
-class Boulder : public Actor {
-public:
-    Boulder(int startX, int startY): Actor(IID_BOULDER, startX, startY, down, 1.0, 1) {}
-};
-
-class Goodie : public Actor {
-public:
-    Goodie(int imageID, int startX, int startY, Direction startDirection = right, float size = 1, unsigned int depth = 2)
-        : Actor(imageID, startX, startY, startDirection, size, depth) {}
-
-
-};
-
-class OilBarrel : public Goodie {
-public:
-    OilBarrel(int startX, int startY) : Goodie(IID_BARREL, startX, startY) 
-    {
-        setVisible(false);
-    }
-};
-
-class GoldNugget : public Goodie {
-public:
-    GoldNugget(int startX, int startY) : Goodie(IID_GOLD, startX, startY) 
-    {
-        setVisible(false); //if spawned in 
-        setVisible(true); //if dropped by iceman
-    }
-
-};
-
-class SonarKit : public Goodie {
-public:
-    SonarKit(int startX, int startY) : Goodie(IID_SONAR, startX, startY) {}
-
-};
-
-class WaterRefill : public Goodie {
-public:
-    WaterRefill(int startX, int startY) : Goodie(IID_WATER_POOL, startX, startY) {}
-
-};
-
-
-class Protester : public Actor {
-public:
-    Protester(int imageID, int startX, int startY)
-        : Actor(imageID, startX, startY, left, 1.0, 0)
-    {
-        //setVisible(true);
-    }
-};
-
-class RegularProtester : public Protester {
-public:
-    RegularProtester(int startX, int startY)
-        : Protester(IID_PROTESTER, startX, startY) {}
-};
-
-class HardcoreProtester : public Protester {
-public:
-    HardcoreProtester(int startX, int startY)
-        : Protester(IID_HARD_CORE_PROTESTER, startX, startY) {}
-
-};
+//class Squirt : public Actor {
+//public:
+//    Squirt(int startX, int startY, StudentWorld* ptr) : Actor(IID_WATER_SPURT, startX, startY, down, 1.0, 1) {}
+//};
+//
+//class Boulder : public Actor {
+//public:
+//    Boulder(int startX, int startY, StudentWorld* ptr) : Actor(IID_BOULDER, startX, startY, down, 1.0, 1) {}
+//};
+//
+//class Goodie : public Actor {
+//public:
+//    Goodie(int imageID, int startX, int startY, Direction startDirection = right, float size = 1, unsigned int depth = 2, StudentWorld* ptr)
+//        : Actor(imageID, startX, startY, startDirection, size, depth, ptr) {}
+//
+//
+//};
+//
+//class OilBarrel : public Goodie {
+//public:
+//    OilBarrel(int startX, int startY, StudentWorld* ptr) : Goodie(IID_BARREL, startX, startY)
+//    {
+//        setVisible(false);
+//    }
+//};
+//
+//class GoldNugget : public Goodie {
+//public:
+//    GoldNugget(int startX, int startY, StudentWorld* ptr) : Goodie(IID_GOLD, startX, startY)
+//    {
+//        setVisible(false); //if spawned in 
+//        setVisible(true); //if dropped by iceman
+//    }
+//
+//};
+//
+//class SonarKit : public Goodie {
+//public:
+//    SonarKit(int startX, int startY, StudentWorld* ptr) : Goodie(IID_SONAR, startX, startY) {}
+//
+//};
+//
+//class WaterRefill : public Goodie {
+//public:
+//    WaterRefill(int startX, int startY, StudentWorld* ptr) : Goodie(IID_WATER_POOL, startX, startY) {}
+//
+//};
+//
+//
+//class Protester : public Actor {
+//public:
+//    Protester(int imageID, int startX, int startY, StudentWorld* ptr)
+//        : Actor(imageID, startX, startY, left, 1.0, 0)
+//    {
+//        //setVisible(true);
+//    }
+//};
+//
+//class RegularProtester : public Protester {
+//public:
+//    RegularProtester(int startX, int startY, StudentWorld* ptr)
+//        : Protester(IID_PROTESTER, startX, startY) {}
+//};
+//
+//class HardcoreProtester : public Protester {
+//public:
+//    HardcoreProtester(int startX, int startY, StudentWorld* ptr)
+//        : Protester(IID_HARD_CORE_PROTESTER, startX, startY) {}
+//
+//};
 #endif // ACTOR_H_
