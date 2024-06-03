@@ -1,0 +1,260 @@
+----------------------------------StudentWorld.cpp----------------------------------
+
+#include "StudentWorld.h"
+#include <string>
+#include <iostream>
+//#include "GameConstants.h"
+using namespace std;
+
+GameWorld* createStudentWorld(string assetDir)
+{
+	return new StudentWorld(assetDir);
+}
+
+// Students:  Add code to this file (if you wish), StudentWorld.h, Actor.h and Actor.cpp
+
+
+
+int StudentWorld::init()
+{
+	
+
+	//creates ice field
+	for (int i = 0; i < VIEW_WIDTH; i++)
+	{
+		for (int j = 0; j < VIEW_HEIGHT; j++)
+		{
+			if (!(i >= 30 && i <= 33 && j >= 4 && j <= 64))
+			{
+				IceGrid[i][j] = new Ice(i, j);
+			}
+			else
+			{
+				IceGrid[i][j] = nullptr;
+			}
+		}
+	}
+
+	//cout << "please work"; // prints to console
+
+	//temp object creator
+	Iceman* m_iceMan = new Iceman(30, 60);
+	RegularProtester* regularprotester = new RegularProtester(60, 65);
+	HardcoreProtester* hardcoreprotester = new HardcoreProtester(0, 65);
+	OilBarrel* oilBarrel = new OilBarrel(35, 35);
+	GoldNugget* goldNugget = new GoldNugget(25, 25);
+	SonarKit* sonarKit = new SonarKit(15, 15);
+	WaterRefill* waterRefill = new WaterRefill(45, 45);
+	Boulder* boulder = new Boulder(55, 55);
+	Squirt* squirt = new Squirt(25, 55);
+
+	return GWSTATUS_CONTINUE_GAME;
+	//return GWSTATUS_PLAYER_DIED;
+
+}
+
+int StudentWorld::move()
+{
+	
+	//updateDisplayText();
+	cout << "move test";
+	// This code is here merely to allow the game to build, run, and terminate after you hit enter a few times.
+	// Notice that the return value GWSTATUS_PLAYER_DIED will cause our framework to end the current level.
+	decLives();
+	//return GWSTATUS_PLAYER_DIED;
+	return GWSTATUS_CONTINUE_GAME;
+
+}
+
+
+
+void StudentWorld::cleanUp()
+{
+
+	//cleanup for ice field
+	for (int i = 0; i < VIEW_WIDTH; i++)
+	{
+		for (int j = 0; j < VIEW_HEIGHT; j++)
+		{
+			delete IceGrid[i][j];
+			IceGrid[i][j] = nullptr;
+		}
+	}
+
+
+}
+
+----------------------------------StudentWorld.h----------------------------------
+#ifndef STUDENTWORLD_H_
+#define STUDENTWORLD_H_
+
+#include "GameWorld.h"
+#include "GameConstants.h"
+#include <string>
+#include <vector> 
+#include "Actor.h"
+#include <chrono>
+
+// Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
+
+
+class StudentWorld : public GameWorld
+{
+public:
+
+	StudentWorld(std::string assetDir)
+		: GameWorld(assetDir)
+	{
+	}
+	
+	virtual int init();
+	virtual int move();
+	virtual void cleanUp();
+	
+
+private:
+	Ice* IceGrid[VIEW_WIDTH][VIEW_HEIGHT];
+	//Iceman* m_iceman;
+};
+
+
+#endif // STUDENTWORLD_H_
+
+
+----------------------------------Actor.cpp----------------------------------
+
+#include "Actor.h"
+#include "StudentWorld.h"
+
+// Students:  Add code to this file (if you wish), Actor.h, StudentWorld.h, and StudentWorld.cpp
+
+//void RegularProtester::doSomething() {
+//
+//}
+----------------------------------Actor.h----------------------------------
+#ifndef ACTOR_H_
+#define ACTOR_H_
+
+#include "GraphObject.h"
+//#include "StudentWorld.cpp"
+
+// Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
+
+
+class Actor : public GraphObject
+{
+public:
+    Actor(int imageID, int startX, int startY, Direction startDirection, float size, unsigned int depth)
+        : GraphObject(imageID, startX, startY, startDirection, size, depth)
+    {
+        setVisible(true);
+    }
+    Actor(int imageID, int startX, int startY, Direction startDirection, float size, unsigned int depth, int hitPoints, int waterToSquirt, int sonarCharge, int goldNuggets)
+        : GraphObject(imageID, startX, startY, startDirection, size, depth) 
+    {
+        setVisible(true);
+    }
+    
+
+    //virtual void doSomething() = 0;  // Pure virtual function to be overridden by derived classes
+    virtual ~Actor() {}
+
+private:
+
+};
+
+class Ice : public Actor
+{
+public:
+	Ice(int startX, int startY) : Actor(IID_ICE, startX, startY, right, 0.25, 3){}
+
+    
+private:
+
+};
+
+class Iceman : public Actor
+{
+public:
+    Iceman(int startX, int startY)
+        : Actor(IID_PLAYER, startX, startY, right, 1.0, 0 , m_hitPoints = 10, m_waterToSquirt = 5, m_sonarCharge = 1, m_goldNuggets = 0){}
+    //virtual void doSomething() override;
+    // getLives(m_hitPoints);
+private:
+    int m_hitPoints;
+    int m_waterToSquirt;
+    int m_sonarCharge;
+    int m_goldNuggets;
+};
+
+class Squirt : public Actor {
+public:
+    Squirt(int startX, int startY) : Actor(IID_WATER_SPURT, startX, startY, down, 1.0, 1) {}
+};
+
+class Boulder : public Actor {
+public:
+    Boulder(int startX, int startY): Actor(IID_BOULDER, startX, startY, down, 1.0, 1) {}
+};
+
+class Goodie : public Actor {
+public:
+    Goodie(int imageID, int startX, int startY, Direction startDirection = right, float size = 1, unsigned int depth = 2)
+        : Actor(imageID, startX, startY, startDirection, size, depth) {}
+
+
+};
+
+class OilBarrel : public Goodie {
+public:
+    OilBarrel(int startX, int startY) : Goodie(IID_BARREL, startX, startY) 
+    {
+        setVisible(false);
+    }
+};
+
+class GoldNugget : public Goodie {
+public:
+    GoldNugget(int startX, int startY) : Goodie(IID_GOLD, startX, startY) 
+    {
+        setVisible(false); //if spawned in 
+        setVisible(true); //if dropped by iceman
+    }
+
+};
+
+class SonarKit : public Goodie {
+public:
+    SonarKit(int startX, int startY) : Goodie(IID_SONAR, startX, startY) {}
+
+};
+
+class WaterRefill : public Goodie {
+public:
+    WaterRefill(int startX, int startY) : Goodie(IID_WATER_POOL, startX, startY) {}
+
+};
+
+
+class Protester : public Actor {
+public:
+    Protester(int imageID, int startX, int startY)
+        : Actor(imageID, startX, startY, left, 1.0, 0)
+    {
+        //setVisible(true);
+    }
+};
+
+class RegularProtester : public Protester {
+public:
+    RegularProtester(int startX, int startY)
+        : Protester(IID_PROTESTER, startX, startY) {}
+};
+
+class HardcoreProtester : public Protester {
+public:
+    HardcoreProtester(int startX, int startY)
+        : Protester(IID_HARD_CORE_PROTESTER, startX, startY) {}
+
+};
+#endif // ACTOR_H_
