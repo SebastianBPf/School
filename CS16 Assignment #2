@@ -1,0 +1,36 @@
+;My second assembly language program (FirstASM.asm)
+
+; Progam Description: Exchanges every pair of values in an array 
+; Author: Sebastian Pfander
+; Creation Date: 9/25/24
+; Revisions: 
+; Date: 9/25/24			Modified by: Sebastian Pfander
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+
+.data
+    array DWORD 100, 200, 300, 400, 500, 600 
+    arraySize = ($ - array) / 4
+
+.code
+main PROC
+    mov esi, 0
+    mov ecx, arraySize
+
+exchangeLoop:
+    mov eax, [array + esi]
+    xchg eax, [array + esi + 4]
+    mov [array + esi], eax 
+
+    add esi, 8
+    loop exchangeLoop
+
+    mov esi, 0
+
+
+	INVOKE ExitProcess, 0
+main ENDP
+END main
