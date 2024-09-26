@@ -40,7 +40,7 @@ END main
 
 ;My second assembly language program (FirstASM.asm)
 
-; Progam Description: Count the sum of all gaps between sucessive array elements
+; Progam Description: Count the sum of all gaps between sucessive array elements 
 ; Author: Sebastian Pfander
 ; Creation Date: 9/25/24
 ; Revisions: 
@@ -59,23 +59,23 @@ ExitProcess PROTO, dwExitCODE: DWORD
 
 .code
 main PROC
-    mov esi, 4
-    mov eax, array
-    add esi, 4
+    mov esi, 1
+    mov ebx, [array]
+    mov sum, 0
 
 gap_loop:
     cmp esi, arraySize 
     jae gap_done
 
-    mov eax, [array + esi]
+    mov eax, [array + esi*4]
     sub eax, ebx
     add sum, eax
-
-    mov ebx, [array + esi]
-    add esi, 4
+    mov ebx, [array + esi*4]
+    inc esi
     jmp gap_loop
 
 gap_done:
+    mov eax, sum
 
 
 	INVOKE ExitProcess, 0
