@@ -1,0 +1,47 @@
+;My first assembly language program (FirstASM.asm)
+
+; Progam Description: Add and subtract two functions
+; Author: Sebastian Pfander
+; Creation Date: 9/22/24
+; Revisions: 
+; Date: 9/22/24			Modified by: Sebastian Pfander
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+
+.data
+; declare variables here 
+X dd 1000h
+Y dd 2000h
+result1 dd ?;
+result2 dd ?;
+
+
+.code 
+main PROC
+; write your code here
+mov eax, [X]
+    mov ebx, [Y]
+
+
+; eax = X - Y
+sub eax, ebx
+; eax = eax + X
+add eax, [X]
+; eax = eax + Y
+add eax, [Y]
+mov [result1], eax
+mov eax, [result1]
+mov ebx, [X]
+; ebx = X + Y
+add ebx, [Y]
+; eax = result1 - (X + Y)
+sub eax, ebx
+mov [result2], eax 
+
+	
+	INVOKE ExitProcess, 0
+main ENDP
+END main
