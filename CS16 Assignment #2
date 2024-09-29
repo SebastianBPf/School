@@ -15,11 +15,12 @@ ExitProcess PROTO, dwExitCODE: DWORD
 .data
     array DWORD 100, 200, 300, 400, 500, 600 
     arraySize = ($ - array) / 4
+    numPairs = arraySize / 2
 
 .code
 main PROC
     mov esi, 0
-    mov ecx, arraySize
+    mov ecx, numPairs
 
 exchangeLoop:
     mov eax, [array + esi]
