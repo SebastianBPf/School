@@ -1,0 +1,137 @@
+----------------------------------#1----------------------------------
+;My second assembly language program (FirstASM.asm)
+
+; Progam Description: Exchanges every pair of values in an array 
+; Author: Sebastian Pfander
+; Creation Date: 9/25/24
+; Revisions: 
+; Date: 9/25/24			Modified by: Sebastian Pfander
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+
+.data
+    array DWORD 100, 200, 300, 400, 500, 600 
+    arraySize = ($ - array) / 4
+    numPairs = arraySize / 2
+
+.code
+main PROC
+    mov esi, 0
+    mov ecx, numPairs
+
+exchangeLoop:
+    mov eax, [array + esi]
+    xchg eax, [array + esi + 4]
+    mov [array + esi], eax 
+
+    add esi, 8
+    loop exchangeLoop
+
+    mov esi, 0
+
+
+	INVOKE ExitProcess, 0
+main ENDP
+END main
+
+----------------------------------#2----------------------------------
+;My Third assembly language program (FirstASM.asm)
+
+; Progam Description: Locate the first nonzero value in an array
+; Author: Sebastian Pfander
+; Creation Date: 10/14/24
+; Revisions: 
+; Date: 10/14/24			Modified by: Sebastian Pfander
+
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+
+;Question 1
+.data
+array SWORD 50 DUP(?)
+sentinel SWORD 0FFFFh
+
+.code
+mov esi, OFFSET array     
+mov ecx, LENGTHOF array   
+
+L1:
+    cmp WORD PTR [esi], 0 
+    jne quit              
+    add esi, 2           
+    loop L1               
+
+    mov esi, OFFSET sentinel
+
+quit:
+
+;Question 2
+cmp ebx, ecx    ; Compare EBX and ECX
+ja skip         ; If EBX > ECX (unsigned), skip the block
+mov eax, 5      ; Otherwise, set EAX to 5
+mov edx, 6      ; Set EDX to 6
+skip:
+
+;Question 3
+cmp ebx, ecx    ; Compare EBX and ECX (signed)
+jg skip         ; If EBX > ECX, skip the block
+cmp ecx, edx    ; Compare ECX and EDX (signed)
+jle skip        ; If ECX ≤ EDX, skip the block
+mov eax, 5      ; Both conditions met, set EAX to 5
+mov edx, 6      ; Set EDX to 6
+skip:
+
+;Question 4
+loop_start:
+    cmp ebx, [val1]       
+    ja loop_end            
+    add ebx, 5             
+    dec DWORD PTR [val1]   
+    jmp loop_start         
+loop_end:
+ 
+
+;Question 5
+CalcGrade PROC
+
+ push ecx       
+    
+    cmp eax, 90
+    jae GradeA      
+    cmp eax, 80
+    jae GradeB      
+    cmp eax, 70
+    jae GradeC      
+    cmp eax, 60
+    jae GradeD     
+    cmp eax, 50
+    jae GradeF      
+   
+GradeF:
+    mov al, 'F'
+    jmp EndGrade
+GradeD:
+    mov al, 'D'
+    jmp EndGrade
+GradeC:
+    mov al, 'C'
+    jmp EndGrade
+GradeB:
+    mov al, 'B'
+    jmp EndGrade
+GradeA:
+    mov al, 'A'
+EndGrade:
+    pop ecx         
+    ret
+CalcGrade ENDP
+
+
+	INVOKE ExitProcess, 0
+main ENDP
+END main
