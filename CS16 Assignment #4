@@ -1,0 +1,153 @@
+---------------------------------#1---------------------------------
+;My Third assembly language program (FirstASM.asm)
+; Progam Description: Locate the first nonzero value in an array
+; Author: Sebastian Pfander
+; Creation Date: 10/14/24
+; Revisions:
+; Date: 10/14/24 Modified by: Sebastian Pfander
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+;Question 1
+.data
+array SWORD 50 DUP(?)
+sentinel SWORD 0FFFFh
+.code
+main PROC
+mov esi, OFFSET array
+mov ecx, LENGTHOF array
+L1:
+cmp WORD PTR [esi], 0
+jne quit
+add esi, 2
+loop L1
+mov esi, OFFSET sentinel
+quit:
+INVOKE ExitProcess, 0
+main ENDP
+END main
+
+---------------------------------#2---------------------------------
+;My Third assembly language program (FirstASM.asm)
+; Progam Description: Writing an if statement
+; Author: Sebastian Pfander
+; Creation Date: 10/14/24
+; Revisions:
+; Date: 10/18/24 Modified by: Sebastian Pfander
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+.code
+;Question 2
+main PROC
+cmp ebx, ecx
+ja skip1
+mov eax, 5
+mov edx, 6
+skip1:
+INVOKE ExitProcess, 0
+main ENDP
+END main
+
+---------------------------------#3---------------------------------
+;My Third assembly language program (FirstASM.asm)
+; Progam Description: Writing an if statement with a comparison operator
+; Author: Sebastian Pfander
+; Creation Date: 10/14/24
+; Revisions:
+; Date: 10/18/24 Modified by: Sebastian Pfander
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+.code
+;Question 3
+main PROC
+cmp ebx, ecx
+jg skip2
+cmp ecx, edx
+jle skip2
+mov eax, 5
+mov edx, 6
+skip2:
+INVOKE ExitProcess, 0
+main ENDP
+END main
+
+---------------------------------#4---------------------------------
+; My Third assembly language program (FirstASM.asm)
+; Progam Description: Implementing a while loop
+; Author: Sebastian Pfander
+; Creation Date: 10/14/24
+; Revisions:
+; Date: 10/18/24 Modified by: Sebastian Pfander
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+;Question 4
+.data
+val1 DWORD 0;
+.code
+main PROC
+loop_start:
+cmp ebx, [val1]
+ja loop_end
+add ebx, 5
+dec DWORD PTR [val1]
+jmp loop_start
+loop_end:
+INVOKE ExitProcess, 0
+main ENDP
+END main
+
+---------------------------------#5---------------------------------
+; My Third assembly language program (FirstASM.asm)
+; Progam Description: Converting an int to a letter grade
+; Author: Sebastian Pfander
+; Creation Date: 10/14/24
+; Revisions:
+; Date: 10/18/24 Modified by: Sebastian Pfander
+.386
+.model flat, stdcall
+.stack 4096
+ExitProcess PROTO, dwExitCODE: DWORD
+.data
+.code
+main PROC
+;Question 5
+CalcGrade PROC
+mov edx, 60
+cmp edx, 90
+jae GradeA
+cmp edx, 80
+jae GradeB
+cmp edx, 70
+jae GradeC
+cmp edx, 60
+jae GradeD
+mov al, 'F'
+jmp FinalGrade
+GradeA:
+mov al, 'A'
+jmp FinalGrade
+GradeB:
+mov al, 'B'
+jmp FinalGrade
+GradeC:
+mov al, 'C'
+jmp FinalGrade
+GradeD:
+mov al, 'D'
+jmp FinalGrade
+FinalGrade:
+pop edx
+mov esp, ebp
+pop ebp
+ret
+CalcGrade ENDP
+main ENDP
+INVOKE ExitProcess, 0
+END main
