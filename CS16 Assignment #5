@@ -1,0 +1,50 @@
+------------------------------#1------------------------------
+;My Fourth assembly language program (FirstASM.asm)
+
+; Progam Description: Multiplying by 26 using shift
+; Author: Sebastian Pfander
+; Creation Date: 10/31/24
+; Revisions: 
+; Date: 10/31/24			Modified by: Sebastian Pfander
+
+.386
+.model flat, stdcall
+.stack 4096
+
+ExitProcess PROTO, dwExitCODE: DWORD
+
+; Multiply AX by 26 using shifting and addition
+
+.data
+number DWORD 1234
+result DWORD ?
+
+.code
+main PROC
+    mov eax, number
+    mov ebx, eax
+
+    ;EAX * 16
+    mov edx, eax
+    shl edx, 4
+
+    ;eax * 8
+    shl eax, 3
+
+    ;EAX * 2
+    shl ebx, 1
+
+    ;(eax * 16) + (eax* 8) + (eax * 2)
+    add edx, eax
+    add edx, ebx
+
+    mov result, edx
+
+    INVOKE ExitProcess, 0
+main ENDP
+END main
+
+
+------------------------------#2------------------------------
+
+------------------------------#3------------------------------
