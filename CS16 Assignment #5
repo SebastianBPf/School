@@ -47,7 +47,7 @@ END main
 
 ------------------------------#2------------------------------
 ; My Fourth assembly language program (FirstASM.asm)
-; Program Description: Write procedure WriteScaled
+; Program Description: Encryption
 ; Author: Sebastian Pfander
 ; Creation Date: 10/31/24
 ; Revisions:
