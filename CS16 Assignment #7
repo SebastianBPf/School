@@ -1,0 +1,177 @@
+------------------------------------------7.1------------------------------------------
+; FirstASM.asm
+; Program Description: Draw shapes a square in console 
+; Author: Sebastian Pfander
+; Creation Date: 12/1/24
+
+.386
+.model flat, stdcall
+.stack 4096
+INCLUDE Irvine32.inc
+
+.data
+horizontal DB 196
+vertical DB 179
+top_left DB 218
+top_right DB 191
+bottom_left DB 192
+bottom_right DB 217
+space DB ' '
+
+; Box dimensions
+box_width DB 20
+box_height DB 10
+
+.code
+main PROC
+    call Clrscr
+
+    mov al, top_left
+    call WriteChar
+
+    movzx ecx, BYTE PTR [box_width]
+draw_top:
+    mov al, horizontal
+    call WriteChar
+    loop draw_top
+
+    mov al, top_right
+    call WriteChar
+    call Crlf
+
+    movzx ecx, BYTE PTR [box_height]
+draw_sides:
+    mov al, vertical
+    call WriteChar
+
+    movzx edx, BYTE PTR [box_width]
+fill_space:
+    mov al, space
+    call WriteChar
+    dec edx
+    jnz fill_space
+
+    mov al, vertical
+    call WriteChar
+    call Crlf
+    loop draw_sides
+
+    mov al, bottom_left
+    call WriteChar
+
+    movzx ecx, BYTE PTR [box_width]
+draw_bottom:
+    mov al, horizontal
+    call WriteChar
+    loop draw_bottom
+
+    mov al, bottom_right
+    call WriteChar
+    call Crlf
+
+    exit
+main ENDP
+
+END main
+
+------------------------------------------7.2------------------------------------------
+; FirstASM.asm
+; Program Description: Draw a triangle in console 
+; Author: Sebastian Pfander
+; Creation Date: 12/1/24
+
+.386
+.model flat, stdcall
+.stack 4096
+INCLUDE Irvine32.inc
+
+.data
+; Line-drawing characters
+left_slash DB '/'
+right_slash DB '\'
+horizontal DB '-'
+space DB ' '
+
+; Triangle dimensions
+triangle_height DB 10
+
+.code
+main PROC
+    call Clrscr
+
+    ; Loop through each row of the triangle
+    movzx ecx, BYTE PTR [triangle_height]
+draw_triangle:
+    ; Calculate padding (spaces to center the triangle)
+    mov edx, ecx
+    sub edx, 1
+
+draw_padding:
+    cmp edx, 0
+    je draw_left_edge
+    mov al, space
+    call WriteChar
+    dec edx
+    jmp draw_padding
+
+draw_left_edge:
+    ; Draw the left edge
+    mov al, left_slash
+    call WriteChar
+
+    ; Calculate and draw inner spaces
+    movzx edx, BYTE PTR [triangle_height]
+    sub edx, ecx
+    imul edx, edx, 2
+    sub edx, 1
+
+    cmp edx, 0
+    jl draw_right_edge
+
+draw_inner_space:
+    cmp edx, 0
+    je draw_right_edge
+    mov al, space
+    call WriteChar
+    dec edx
+    jmp draw_inner_space
+
+draw_right_edge:
+    cmp edx, 0
+    jl skip_right_edge
+    ; Draw the right edge
+    mov al, right_slash
+    call WriteChar
+
+skip_right_edge:
+    call Crlf
+    dec ecx
+    jnz draw_triangle
+
+    ; Draw the base of the triangle
+draw_base:
+    mov al, left_slash
+    call WriteChar
+
+    movzx edx, BYTE PTR [triangle_height]
+    shl edx, 1
+    sub edx, 1
+draw_base_line:
+    cmp edx, 0
+    je finish
+    mov al, horizontal
+    call WriteChar
+    dec edx
+    jmp draw_base_line
+
+finish:
+    mov al, right_slash
+    call WriteChar
+    call Crlf
+
+    exit
+main ENDP
+
+END main
+
+
