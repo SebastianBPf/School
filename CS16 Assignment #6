@@ -1,0 +1,66 @@
+; My Fifth assembly language program (FirstASM.asm)
+; Program Description: Write procedure StrConcat
+; Author: Sebastian Pfander
+; Creation Date: 11/10/24
+; Revisions:
+; Date: 11/10/24            Modified by: Sebastian Pfander
+
+.386
+.model flat, stdcall
+.stack 4096
+
+INCLUDE Irvine32.inc
+
+; Procedure prototype
+StrConcat PROTO, target:PTR BYTE, source:PTR BYTE
+
+.data
+targetString BYTE "Sebastian ", 10 DUP(0)
+sourceString BYTE "Pfander", 0
+
+.code
+
+main PROC
+
+    INVOKE StrConcat, ADDR targetString, ADDR sourceString
+
+    mov edx, OFFSET targetString
+    call WriteString
+    call Crlf
+
+    exit
+main ENDP
+
+StrConcat PROC target:PTR BYTE, source:PTR BYTE
+
+    push esi
+    push edi
+
+    mov edi, target
+
+FindEndOfTarget:
+    mov al, [edi]
+    cmp al, 0
+    je EndOfTargetFound
+    inc edi
+    jmp FindEndOfTarget
+
+EndOfTargetFound:
+
+    mov esi, source
+
+CopySourceToTarget:
+    mov al, [esi]
+    mov [edi], al
+    inc esi
+    inc edi
+    cmp al, 0
+    jne CopySourceToTarget
+
+    pop edi
+    pop esi
+    ret
+
+StrConcat ENDP
+
+END main
