@@ -86,23 +86,18 @@ END main
 INCLUDE Irvine32.inc
 
 .data
-; Line-drawing characters
-left_slash DB '/'
-right_slash DB '\'
-horizontal DB '-'
-space DB ' '
+left_slash      DB 47
+right_slash     DB 92
+horizontal      DB 45
+space           DB 32
 
-; Triangle dimensions
 triangle_height DB 10
 
 .code
 main PROC
     call Clrscr
-
-    ; Loop through each row of the triangle
     movzx ecx, BYTE PTR [triangle_height]
 draw_triangle:
-    ; Calculate padding (spaces to center the triangle)
     mov edx, ecx
     sub edx, 1
 
@@ -115,11 +110,9 @@ draw_padding:
     jmp draw_padding
 
 draw_left_edge:
-    ; Draw the left edge
     mov al, left_slash
     call WriteChar
 
-    ; Calculate and draw inner spaces
     movzx edx, BYTE PTR [triangle_height]
     sub edx, ecx
     imul edx, edx, 2
@@ -139,7 +132,6 @@ draw_inner_space:
 draw_right_edge:
     cmp edx, 0
     jl skip_right_edge
-    ; Draw the right edge
     mov al, right_slash
     call WriteChar
 
@@ -148,7 +140,6 @@ skip_right_edge:
     dec ecx
     jnz draw_triangle
 
-    ; Draw the base of the triangle
 draw_base:
     mov al, left_slash
     call WriteChar
@@ -174,4 +165,386 @@ main ENDP
 
 END main
 
+
+------------------------------------------7.3------------------------------------------
+; FirstASM.asm
+; Program Description: Draw a house with a door, window, and chimney
+; Author: Sebastian Pfander
+; Creation Date: 12/2/24
+
+.386
+.model flat, stdcall
+.stack 4096
+INCLUDE Irvine32.inc
+
+.data
+    horizontal      DB 196
+    vertical        DB 179
+    left_slash      DB 47
+    right_slash     DB 92
+    chimney_char    DB 179
+    window_left     DB 179
+    window_right    DB 179
+    door_char       DB 179
+    underscore      DB 196
+    space           DB 32
+    triangle_height DB 10
+    house_height    DB 10
+    total_width     DWORD ?
+    max_width       DWORD ?
+
+.code
+main PROC
+    call Clrscr
+    movzx eax, BYTE PTR [triangle_height]
+    shl eax, 1
+    sub eax, 1
+    mov [total_width], eax
+    inc DWORD PTR [total_width]
+    mov eax, [total_width]
+    mov [max_width], eax
+    movzx ecx, BYTE PTR [triangle_height]
+
+draw_triangle_row:
+    mov edx, ecx
+    dec edx
+
+draw_triangle_spaces:
+    cmp edx, 0
+    je draw_triangle_left_edge
+    mov al, space
+    call WriteChar
+    dec edx
+    jmp draw_triangle_spaces
+
+draw_triangle_left_edge:
+    mov al, left_slash
+    call WriteChar
+    movzx edx, BYTE PTR [triangle_height]
+    sub edx, ecx
+    imul edx, 2
+    sub edx, 1
+    cmp edx, 0
+    jl draw_triangle_right_edge
+
+draw_triangle_inner:
+    cmp edx, 0
+    jle draw_triangle_right_edge
+    cmp ecx, 1
+    jne draw_triangle_space_or_underscore
+    mov al, horizontal
+    call WriteChar
+    dec edx
+    jmp draw_triangle_inner
+
+draw_triangle_space_or_underscore:
+    mov al, space
+    call WriteChar
+    dec edx
+    jmp draw_triangle_inner
+
+draw_triangle_right_edge:
+    cmp ecx, 1
+    je check_chimney_in_roof
+    mov al, right_slash
+    call WriteChar
+    jmp check_chimney_in_roof
+
+check_chimney_in_roof:
+    movzx ebx, BYTE PTR [triangle_height]
+    sub ebx, ecx
+    cmp ebx, 1
+    jl end_triangle_row
+    mov al, chimney_char
+    call WriteChar
+    call WriteChar
+
+end_triangle_row:
+    call Crlf
+    dec ecx
+    jnz draw_triangle_row
+    movzx ecx, BYTE PTR [house_height]
+
+draw_house_row:
+    mov al, vertical
+    call WriteChar
+    mov eax, [total_width]
+    sub eax, 2
+    mov ebx, eax
+    mov edx, 1
+
+draw_house_inner:
+    mov eax, ecx
+    movzx esi, BYTE PTR [house_height]
+    cmp eax, esi
+    je check_for_door
+    cmp eax, 2
+    je check_for_window
+    mov al, space
+    call WriteChar
+    jmp check_end_of_row
+
+check_for_window:
+    mov eax, [max_width]
+    shr eax, 1
+    sub eax, 1
+    cmp edx, eax
+    je draw_window_left
+    inc eax
+    cmp edx, eax
+    je draw_window_space
+    inc eax
+    cmp edx, eax
+    je draw_window_right
+    mov al, space
+    call WriteChar
+    jmp check_end_of_row
+
+draw_window_left:
+    mov al, window_left
+    call WriteChar
+    jmp check_end_of_row
+
+draw_window_space:
+    mov al, space
+    call WriteChar
+    jmp check_end_of_row
+
+draw_window_right:
+    mov al, window_right
+    call WriteChar
+    jmp check_end_of_row
+
+check_for_door:
+    mov eax, [total_width]
+    shr eax, 1
+    sub eax, 1
+    cmp edx, eax
+    je draw_door_left
+    inc eax
+    cmp edx, eax
+    je draw_door_right
+    mov al, space
+    call WriteChar
+    jmp check_end_of_row
+
+draw_door_left:
+    mov al, door_char
+    call WriteChar
+    jmp check_end_of_row
+
+draw_door_right:
+    mov al, door_char
+    call WriteChar
+    jmp check_end_of_row
+
+check_end_of_row:
+    inc edx
+    cmp edx, ebx
+    jle draw_house_inner
+    mov al, vertical
+    call WriteChar
+    call Crlf
+    dec ecx
+    jnz draw_house_row
+    exit
+main ENDP
+END main
+
+------------------------------------------7.4------------------------------------------
+Write a program that draws a small square on the screen using several
+blocks (ASCII code DBh) in color. Move the square around the screen in
+randomly generated functions. Use a fixed delay value of 50 milliseconds.
+(EXTRA CREDIT: Use a randomly generated delay value between 10
+and 100 milliseconds.)
+
+; FirstASM.asm
+; Program Description: Draw small colored square that moves around the screen
+; Author: Sebastian Pfander
+; Creation Date: 12/2/24
+
+.386
+.model flat, stdcall
+.stack 4096
+INCLUDE Irvine32.inc
+
+.data
+squareSize   DWORD 4
+blockChar    BYTE  0DBh
+squareColor  DWORD 9
+delayTime    DWORD ?
+currX        DWORD ?
+currY        DWORD ?
+prevX        DWORD ?
+prevY        DWORD ?
+screenWidth  DWORD 80
+screenHeight DWORD 25
+maxX         DWORD ?
+maxY         DWORD ?
+deltaX       DWORD ?
+deltaY       DWORD ?
+
+.code
+main PROC
+    call Randomize
+
+    mov eax, screenWidth
+    sub eax, squareSize
+    mov maxX, eax
+
+    mov eax, screenHeight
+    sub eax, squareSize
+    mov maxY, eax
+
+    mov eax, maxX
+    inc eax
+    call RandomRange
+    mov currX, eax
+    mov prevX, eax
+
+    mov eax, maxY
+    inc eax
+    call RandomRange
+    mov currY, eax
+    mov prevY, eax
+
+LoopStart:
+    call EraseSquare 
+
+    mov eax, currX
+    mov prevX, eax
+    mov eax, currY
+    mov prevY, eax
+
+    mov eax, 3
+    call RandomRange
+    sub eax, 1
+    mov deltaX, eax
+
+    mov eax, 3
+    call RandomRange
+    sub eax, 1
+    mov deltaY, eax
+
+    mov eax, currX
+    add eax, deltaX
+    cmp eax, 0
+    jl SetCurrXZero
+    cmp eax, maxX
+    jg SetCurrXMax
+    mov currX, eax
+    jmp SkipSetCurrX
+SetCurrXZero:
+    mov currX, 0
+    jmp SkipSetCurrX
+SetCurrXMax:
+;    mov currX, maxX
+SkipSetCurrX:
+
+    ; Update current Y position
+    mov eax, currY
+    add eax, deltaY
+    cmp eax, 0
+    jl SetCurrYZero
+    cmp eax, maxY
+    jg SetCurrYMax
+    mov currY, eax
+    jmp SkipSetCurrY
+SetCurrYZero:
+    mov currY, 0
+    jmp SkipSetCurrY
+SetCurrYMax:
+;    mov currY, maxY
+SkipSetCurrY:
+
+    call DrawSquare
+
+    mov eax, 91
+    call RandomRange
+    add eax, 10
+    mov delayTime, eax
+
+    mov eax, delayTime
+    call Delay
+
+    jmp LoopStart
+
+main ENDP
+
+EraseSquare PROC
+    push esi
+    push edi
+    push ebx
+    push ecx
+    push edx
+
+    mov esi, prevY
+    mov ecx, squareSize
+
+EraseRowLoop:
+    mov edi, prevX
+    mov ebx, squareSize
+
+EraseColLoop:
+    mov edx, esi
+    mov eax, edi
+    call Gotoxy
+    mov al, ' '
+    call WriteChar
+    inc edi
+    dec ebx
+    jnz EraseColLoop
+
+    inc esi
+    dec ecx
+    jnz EraseRowLoop
+
+    pop edx
+    pop ecx
+    pop ebx
+    pop edi
+    pop esi
+    ret
+EraseSquare ENDP
+
+DrawSquare PROC
+    push esi
+    push edi
+    push ebx
+    push ecx
+    push edx
+
+    mov eax, squareColor
+    call SetTextColor
+
+    mov esi, currY
+    mov ecx, squareSize
+
+DrawRowLoop:
+    mov edi, currX
+    mov ebx, squareSize
+
+DrawColLoop:
+    mov edx, esi
+    mov eax, edi
+    call Gotoxy
+    mov al, blockChar
+    call WriteChar
+    inc edi
+    dec ebx
+    jnz DrawColLoop
+
+    inc esi
+    dec ecx
+    jnz DrawRowLoop
+
+    pop edx
+    pop ecx
+    pop ebx
+    pop edi
+    pop esi
+    ret
+DrawSquare ENDP
+
+END main
 
